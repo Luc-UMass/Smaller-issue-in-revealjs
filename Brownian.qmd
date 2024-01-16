@@ -1,0 +1,1081 @@
+---
+title: "Stochastic Processes"
+subtitle: "Math 606, Spring 2023 "
+author: "Luc Rey-Bellet"
+institute: "University of Massachusetts Amherst"
+date: today
+css: styles.css
+number-sections: true
+crossref:
+  chapters: true
+format: 
+ revealjs:
+    number-sections: true
+    number-depth: 1
+    embed-resources: true
+    logo: images/Umasslogo.png
+    smaller: true
+    theme: simple
+    slide-number: c/t
+    toc: true
+    toc-depth: 1
+    bibliography: stochastic-bib.bib
+    html-math-method: katex
+    jumpToSlide: true
+    
+---    
+
+
+
+# Continuous time Markov chains
+
+In this section that we build a continuous time Markov process $X_t$ with $t\ge 0$.  The Markov property can be expressed as 
+$$
+P\{ X_t=j| \{X_{r}\}, 0\le r \le s  \} = P\{X_t=j| X_s \} \,.
+$$
+for any $0 < s < t$. 
+
+
+## Exponential random variables
+
+ To construct a Markov we will need lots of exponential random variables.   Recall that an exponential random variable $T$ with paramter $\lambda$ has 
+the pdf $f_T(t)=\lambda e^{-\lambda t}$, for $t \ge 0$  the cdf $F_T(t) = 1- e^{-\lambda t}$  and mean $E[T]=\frac{1}{\lambda}$.   
+
+
+:::{#prp-propexp name="Properties of exponential randomm variables"}  
+Let $T_1, T_2, T_3, \cdots$ be independent exponential random variables with parameter $\lambda_1, \lambda_2, \cdots$. Then 
+
+  1.  $T= \min\{ T_1, \cdots, T_n\}$ is an exponential random variables with paramter $\lambda_1+ \cdots \lambda_n$. Note that $n=\infty$ is allowed if we assume that $\sum_{n}\lambda_n$ is finite. 
+  2.  $\displaystyle P\{ T_i = \min \{ T_1, \cdots, T_n\} \} = \frac{\lambda_i}{\lambda_1+ \cdots \lambda_n}$
+
+:::
+
+:::{.proof} 
+For 1. we have, using independence, 
+$$
+P\left\{ T > t  \right\} = P\left\{ T_1 > t, \cdots, T_n > t \right\} = P\left\{ T_1 > t  \right\} \cdots P\left\{ T_m > t  \right\} 
+= e^{-(\lambda_1+ \cdots \lambda_n)t}
+$$
+and thus $T$ is an exponential random variable.  
+For 2. we have, by conditioning, 
+$$
+P\left\{ T_1 = T  \right\} = \int_0^\infty P\{ T_2>t, \cdots, T_n > t \}    f_{T_1}(t) \, dt = \int_0^\infty e^{-(\lambda_2 + \cdots+ \lambda_n)t} \lambda_1 e^{-\lambda_1 t}\, dt = \frac{\lambda_1}{\lambda_1+ \cdots \lambda_n}
+$$
+$\blacksquare$
+:::
+
+
+## Definition of a continuous time Markov chain
+
++ As for the Poisson process we will give two equivalent definition of the process, the first one describe infinitesinmal rate of change and leads to a *system of ODEs* describing the evolution of the pdf of $X_t$.  The second definition use exponential random variables and waiting times and leads 
+to an algorithm to simulate a continuous time Markov chain, often called the *stochastic simulation algorithm*.  
+
+. . . 
+
++  To define a Markov process on the state space $S$ we assign a number $\alpha(i,j)$ for any pair of state $i\not=j$. You should think these numbers 
+$$
+\alpha(i,j) = \textrm{ rate at which the chain changes from state } i \textrm{ to state } j \,.
+$$
+We denote 
+$$
+\alpha(i) = \sum_{j\not= i} \alpha(i,j) = \textrm{ rate at which the chain changes from state } i \,.
+$$ 
+
+. . .
+
++ Formally a [continuous Markov chain with rates $\alpha(i,j)$]{.red} is a stochastic process such that 
+$$
+\begin{aligned}
+P\{ X_{t+\Delta t}=i| X_t=i\} &= 1 - \alpha(i)\Delta t + o(\Delta t) \\
+P\{ X_{t+\Delta t}=j| X_t=i\} &= \alpha(i,j)\Delta t + o(\Delta t)
+\end{aligned}
+$$
+
+## {-}
+
++ Proceeding as for the Poisson process we can derive a differential equation for $p_t(i)=P\{X_t =i\}$. By conditioning we have 
+$$
+P\{ X_{t+\Delta t}=i\} = (1 - \alpha(i)\Delta t )P\{  X_t=i\} + \sum_{j \not =i} \alpha(j,i)\Delta t P\{  X_t=j\} + o(\Delta t)
+$$
+which leads to the system of linear ODE's 
+$$
+\frac{d}{dt}p_t(i) = -\alpha(i) p_t(i) + \sum_{j \not= i} \alpha(j,i) p_t(j)
+$${#eq-KK1}
+called the *Kolmogorov backward equations*.     
+
+. . .
+
++ The [infinitesimal generator of a continuous-time Markov chain]{.red} is 
+given by the matrix 
+$$
+A = 
+\begin{matrix}
+1 \\ 2 \\ 3 \\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+-\alpha(1) & \alpha(1,2) & \alpha(1,3) &  \cdots  \\
+\alpha(2,1) & -\alpha(2) & \alpha(2,3) & \cdots\\
+\alpha(3,1) & \alpha(3,2) & -\alpha(3) &  \cdots\\
+\vdots  &  \vdots &  \vdots &
+\end{pmatrix}
+$$
+and the entries of $A$ satifies 
+$$
+A(i,j)\ge 0 \textrm{ for } i \not= j  \quad \textrm{ and } \sum_{i} A(i,i) = 0
+$$
+
+## {-} 
+
++ If we use a row vector $p_t = (p_t(1), p_t(2), \cdots)$ then we can rewrite 
+@eq-KK1 as the system
+$$
+\frac{d}{dt}p_t = p_t A 
+$${#eq-KK2}
+
++ If *$S$ is finite* then one can write the solution in terms of the matrix exponential $e^{tA}= \sum_{k=0}^\infty \frac{t^k A^k}{k!}$ 
+$$
+p_t = p_0 e^{tA} \,.
+$$
+where $p_o(i)=P\{X_0=i\}$ is the initial distribution.
+
++ We can also write equation for the transition probabilities (take $X_0=i$)
+$$
+P_t(i,j) = P \{ X_t =j| X_0=i\}
+$$ 
+and we obtain the matrix equation
+$$
+\frac{d}{dt}P_t = P_t A, \quad \textrm{ with } P_0 =I \quad  \implies \quad  P_t = e^{tA}
+$$
+which we can solve using linear algebra techniques
+
+## Example
+
+$$
+A = 
+\begin{matrix}
+1 \\ 2 \\ 3 \\ 4
+\end{matrix}
+\begin{pmatrix}
+-1 & 1 & 0 & 0  \\
+1 & -3 & 1 & 1  \\
+0 & 1 & -2 & 1  \\
+0 & 1 & 1 & -2 
+\end{pmatrix}
+$$
+The (right) eigenvalues of $A$ are $0, -1, -3, -4$ and we can diagonalize $A$ and find 
+$$
+D=\begin{pmatrix}
+0 & 0 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+0 & 0 & -3 & 0 \\
+0 & 0 & 0 & -4 \\
+\end{pmatrix}
+= Q^{-1} A Q 
+$$
+where the rows of $Q$ are the corresponding eiegenvectors: 
+$$
+Q=\begin{pmatrix}
+1& 1          & 0         & -\frac13 \\
+1& 0          & 0         & 1         \\
+1& -\frac12   & -\frac12  & -\frac13  \\
+1& -\frac12   & \frac12   & \frac13   \\
+\end{pmatrix} \quad \quad 
+Q^{-1}=\begin{pmatrix}
+\frac14 & \frac14          & \frac14         & \frac14 \\
+\frac23& 0          & -\frac13        & -\frac13      \\
+0& 0   & -1  & -1 \\
+-\frac14& \frac34   & -\frac14   & -\frac14   \\
+\end{pmatrix}
+$$
+Then we find 
+$$
+P_t = e^{tA} = Q e^{tD} Q^{-1} = 
+$$
+
+
+
+## Alternative description
+
+We can also construct the Markov chain $X_t$ using exponential random variable. 
+
++ If $X_t=i$  consider (independent) random variable $T(i,j)$ with parameter $\alpha(i,j)$ for $j \not =i$. Think of those as exponential clocks and when the first of the clocks rings, say clock $j$, then the Markov chain moves to state $j$. 
+
++ Using @prp-propexp we see that the chain moves from the state $i$ to $j$ if the clocks associated to the pair $(i,j)$ rings first and this occur with probability 
+  $$
+  Q(i,j) = \frac{\alpha(i,j)}{\sum_{j \not= i}\alpha(i,j)} = \frac{\alpha(i,j)}{\alpha(i)}
+  $$
+  
++ The matrix $Q(i,j)$ is the transition matrix for a discrete time Markov chain $Y_n$ which has the same junmps probabilities as $X_t$ but the transition occur at each unit time.
+
++ Then a new set of clocks with rates $\alpha(j,k)$ is produced and the process starts anew until the Markov chain moves to a new state.
+    
+  
++ By @prp-propexp we can express this slightly differently. If in state $i$ we use a single clock with rate $\alpha(i)$ and when this clock rings then we move to state $j$ according to the discrete time Markov chain $Q(i,j)$. 
+
+
+## {-}   
+
++ The Markov property follows form the memoryless property for an  exponential distribution $T$:  $P(T\ge t +s| T \ge s) = P(T>t)$.  
+
++ If $X_t=i$ then by construction the *position after the next jump after time $t$* clearly depends only $i$ and not the states that the Markov chain visited before time $t$. Moreover if we consider the time of the last jump before time $t$ which occured, say at time $s<t$, then the memoryless property of the exponential random variable implies that the *time at which the jump occur after time $t$* does not depend on $s$ at all.  Putting these together this implies the Markov property
+$$
+  P\{X_{t+u} =j | X_{s}, 0 \le s \le t\} =  P\{X_{t+u} =j | X_t \}
+$$
+  
+  
++ To connect this to the previous description we note that by conditioning on the first jump
+$$
+  P_t(i,j) = P(X_t=j|X_0=i) = \delta(i,j) e^{-\alpha(i) t} + \int_0^t \alpha(i) e^{-\alpha(i)s} \sum_{k} {Q(i,k)} P_{t-s}(k,j) ds
+$$ 
+Iterating this equation and setting $t=\Delta t$ we find   
+$$
+\begin{aligned}
+P(X_{\Delta t}=j|X_0=i) &= \delta(i,j) e^{-\alpha(i) \Delta t} + \int_0^t \alpha(i) e^{-\alpha(i)s} \sum_{k} \frac{\alpha(i,k)}{\alpha(i)} \delta(k,j) e^{-\alpha(k)(t-s)} ds + \cdots  \\
+&= \delta(i,j) e^{-\alpha(i) \Delta t} + \alpha(i,j) \Delta t  \times \underbrace{ e^{-\alpha(j) \Delta t}
+\frac{1}{\Delta t} \int_0^{\Delta t}   e^{-(\alpha(i)-\alpha(j)) s} ds
+}_{\to 1 \textrm{ as }\Delta t \to 0} + \cdots \\
+&= \delta(i,j) (1 - \Delta t \alpha(i)) + \alpha(i,j) \Delta t + o(\Delta t)
+\end{aligned}
+$$
+The higher order terms are negligible since the probability to have two jumps in the time interval $[0,\Delta t]$ is $o(\Delta t)$.
+
+
+## Uniformizable chain
+
++ Consider a Markov chain $Y_n$ with transition matrix $Q$ and we assume that $Q(i,i)=0$.  Then we pick rate $\lambda(i)=1$ for all states $i$. The times at which the Markov chain has transition is thus a sum of IID exponential, that at time descriebed by a Poisson process. In other terms we have 
+$$
+X_t = Y_{N_t}
+$$
+where $N_t$ is a Poisson process with rate $1$. 
+
+. . .
+
++ In this case we can compute the transition matrix quite explicitly: 
+$$
+\begin{aligned}
+P\{X_t=j|X_0=i\}& = P\{ Y_{N_t}=j| X_0=i\} \\
+&= \sum_{n=0}^\infty P\{ Y_{N_t}=j, N_t=n| X_0=i\} \\
+&= \sum_{n=0}^\infty P\{ Y_n=j| X_0=i\} P\{N_t=n\} \\
+&= \sum_{n=0}^\infty \frac{e^{-\lambda t} (\lambda t)^n}{n!} Q^n(i,j) 
+\end{aligned}
+$$
+
+and the generator is given by $A = (Q-I)$.
+
+
+
+
+## Stationary distributions and detailed balance
+
++ A probability vector $\pi$ is a [stationary distribution for the Markov chain with generator $A$]{.red} if  
+$$
+\pi P_t = \pi \quad \textrm{ for all } t =0
+$$
+which, by Komlogorov equation, is equivalent to 
+$$
+\pi A = 0  
+$$ 
+
+
++ In terms of the rate $\alpha(i,j)$ we see that $\pi$ is stationary if ansd only if 
+$$
+\sum_{i \not= j} \pi(i) \alpha(i,j) = \pi(j)\alpha(j) = \sum_{i \not=j} 
+\pi(j) \alpha(j,i)
+$$
+which we can interpret as a balance equation:  $\pi(i)\alpha(i,j)$ is the rate at which the chain in a state $\pi$ changes from $i$ to $j$. 
+
++ As for discrete time we say that a Markov chain satisfies [detailed balance]{.red} if 
+$$
+\pi(i) \alpha(i,j) = \pi(j) \alpha(j,i) \textrm{ for all } i \not= j
+$$
+and detailed balance obviously implies stationarity.
+
+
+## {-} 
+
++ The Markov chain with generator $A$ is [irreducible]{.red} if for any pair of states $i,j$ we can find states $i_1, \cdots, i_{N-1}$ such that 
+$$
+\alpha(i,i_1) \alpha(i_2, i_3) \cdots \alpha(i_{N-1},j) >0
+$$
+If there exists a stationary distribution for an irreducible chain then $\pi(i)>0$ for  all $i$. Indeed if $\pi(i)>0$ and $\alpha(i,j)>0$ then $\pi A(j) =0$ implies that $\pi(j)\alpha(j) = \sum_{k}\pi(k)\alpha(k,j) \ge \pi(i)\alpha(i,j)>0$ and thus $\alpha(j)>0$.  
+
++ The issue of periodicity cannot occur for continuous time Markov chains
+
+:::{#lem-nopercont }
+For an irreducible Markov chain with generator $A$, $P_t(i,j)>0$  for all  $i,j$ and all $t>0$.
+:::
+
+:::{.proof}
+Using the Markov property 
+$$
+\begin{aligned}
+P\{X_t=j|X_0=i\} &\ge P \{ X_{t/N}=i_i, X_{2t/N}=i_2, \cdots X_{t}=j |X_0=i\} \\
+&= P \{ X_{t/N}=i_1| X_0=i\}  P\{ X_{2t/N}=i_2| X_{t/N}=i_i\} \cdots P\{ X_{t}=j |X_{t\frac{N-1}{N}}=i_{n-1}\} 
+\end{aligned}
+$$
+and for example  
+$$
+P \{ X_{t/N}=i_1| X_0=i\} \ge \int_0^{t/N} \alpha(i) e^{-\alpha(i)s} Q(i,i_1)
+e^{-\alpha(i_1)(t-s)}>0
+$$
+$\blacksquare$
+:::
+
+## Convergence to the stationary distribution
+
+If the state space is finite and the chain is irreducible then we have convergence to equilibrium. 
+
+:::{#thm-co} 
+If the state space $S$ is finite and the Markov chain with generator $A$ is irreducible then for any initial distribution $\mu$ we have 
+$$
+\lim_{t \to \infty}\mu P_t = \pi 
+$$ 
+::: 
+
+:::{.proof} 
+We use a spectral argument and the result for discrete time Markov chain. 
+Pick a number $a$ such that $a$ is strictly greater than all entries of $A$ (this is possible since $A$ is finite). Consider the matrix 
+$$
+R= \frac{1}{a}A + I.
+$$
+Then $R$ is a stochastic matrix and the Markov chain $Y_n$ with transition matrix $R$ is irreducible and aperiodic (because $Q(i,i)>0$).  Then from @thm-convMC we know (details in the exercises) that $R$ has a simple eigenvalue 1 and all other eigenvalues $\lambda$ satisfy $|\lambda|<1$. 
+Now
+$$
+Qf = \lambda f \iff  Af =a(\lambda -1) f
+$$
+and so $0$ is a simple eigenvalue for $A$ and the other eiegenvalue are of the form $a(\textrm{Re}(\lambda) -1) + i a \textrm{ Im }(\lambda)$ and so the real part is strictly negative.  
+:::
+
+## {-}
+
+The vector $1=(1,1, \cdots,1 )^T$ is a right eigenvector for $A$ and $\pi$ is a left eigenvector for $A$.  If we define the matrix $\Pi$ as the matrix whose rows are equal to $\pi$, we have then 
+$$
+(P^t - \Pi) \begin{pmatrix} 1\\ \vdots \\1 \end{pmatrix}= 0 \textrm{ and } \pi(P^t - \Pi) =0\,.
+$$
+Moreover if $f$ the right  eigenvector and $g$ the left eigenvector for $A$ for the eigenvalue $\mu \not=0$ then we have 
+$$
+\pi (Af) = \mu \pi f = (\pi A) f =0  \quad \textrm{ and }  (g A) 1 = g (A1) = \mu g 1 =0 
+$$
+and thus we must have $\pi f=0$ and $g 1 =0$. 
+Therefore  
+$$
+P^t - \Pi)f = P^t f = e^{\mu t} f \textrm{ and }  g(P^t - \Pi) = gP^t = e^{\mu t} g. 
+$$ 
+This implies that $P^t - \Pi$ has the simple eigenvalue $0$ and the same eigenvalues $e^{\mu t}$ as $P^t$ and $\mu$ has strictly negative real part. 
+Therefore $P^t - \Pi$ converges to $0$ as $t \to \infty$, or 
+$$
+\lim_{t \to \infty} P_t(i,j)= \pi(j) .
+$$
+
+
+
+## Transient behavior
+
+To study the transient behavior in continuous time we can use similar ideas as in discrete time.  
+
+
++ *Absorption probabilities*:  the absorption probabilities do not depend on the time spent in every state so they can be computed using the transition matrix $Q(i,j)$ for the embedded chain $Y_n$ and the formula in Section [Absorption probabilities] 
+
+
++ *Expected hittiing time*:  For example we have the following result
+
+
+:::{#thm-hittingtime}
+Supose $X_t$ is a Markov chain with generator $A$  and for $i\not j$ let 
+$$
+\Sigma(j) = \inf\{t \ge 0 ; X_t=i\}  
+$$
+be the first hitting time to state $j$.   Let $\tilde{A}$ the matrix obtained by deleting the $j^{th}$ and $j^{th}$ column from the generator $A$. Then we have
+$$
+E[\Sigma(j)|X_0=i] = \sum_{l \not= j} B(i,l)  \quad \textrm{ where } B= \tilde{A}^{-1}
+$$
+The matrix $\tilde{A}$ has rowsums which are non-positive and at least one of the row must be strictly negative. 
+::: 
+
+## 
+
+:::{.proof} 
+By conditioning on the first jump which happens at time $T$ we have 
+$$
+E[\Sigma(j)|X_0=i] = \underbrace{E[T|X_0=i]}_{\textrm{expected time until the first jump }} + \sum_{k\in S, k\not=j} P\{ X_T = k|X_0=i\} \underbrace{E[ \Sigma(j)|X_0=k]}_{\textrm{expected hitting time} \atop \textrm{ from the state after the first jump}}   
+$$
+If we set $b(i)=E[\Sigma(j)|X_0=i]$ (for $i \not= j$) we find the equation
+$$
+b(i)= \frac{1}{\alpha(i)} + \sum_{k \not= j} \frac{\alpha(i,k)}{\alpha(i)} b(k)  \implies  1 =  \alpha(i) b(i)  - \sum_{k\not= j}\alpha(i,k) b(k)
+$$
+which reads, in matrix form as 
+$$
+1 = -\tilde{A} b \implies b= (-\tilde{A})^{-1} 1.
+$$ 
+To show that $-\tilde{A}$ is invertible we consider the matrix 
+$R= \frac{1}{a}\tilde{A} + I$ where $a$ is chosen larger than all the entries. Then the entries of $R$ are non-negative and the rowsums do not exceed one with at least one strictly less than $1$. By the results for discrete time Markov chains we know that 
+$$
+I-R=(-\frac{1}{a} A)
+$$ 
+is invertible.  
+
+:::
+
+## Explosion
+ 
++ For a continuous time Markov chain $X_t$ let us consider the time of the successive jumps
+$$
+S_1=T_1, S_2=T_1+T_2, S_3=T_1+T_2+T_3, \cdots
+$$
+Here the $T_i$ are independent exponential but, in general, no identically distributed  with paramters $\alpha_i$ which depends on the state being visited. We have then 
+$$
+E[S_n]= \sum_{i=1}^n \frac{1}{\lambda_i}
+$$
+
++ *Explosion*: To see what can happen consider a Markov chain with rate $\alpha(i,i+1)=(n+1)^2$ and all other rates equal to $0$. Then the Markov chain moves up by $1$ at every jump like a Poisson process but at accelerated pace. We 
+have then 
+$$
+E[S_\infty]= \sum_{n=1}\frac{1}{n^2} < \infty
+$$
+so $S_\infty < \infty$ with probability $1$. So there are infinitely many jumps in finite time and $X_t=+\infty$ after a finite time. This is called explosion. 
+
+## {-}
+
++ This is an issue familiar in ODE: the equation $\frac{d}{dt} x_t = x_t^2$ has solution has solution $x_t= \frac{x_0}{x_0-t}$ which blows up at time $t=x_0$. 
+
++ It is not easy to determine if an explosion really occurs. Indeed for no explosion to occur we must have, with probabilty 1, 
+$$
+\sum_{n} \frac{1}{\alpha(Y_n)} = \infty
+$$ 
+where $Y_n$ is the embedded chain.   
+
++ A sufficient condition for non-explosion is a suitable upper bound on the rates $\alpha(i)$, say $\alpha(i) \le \alpha$ which is true for finite state spaces but this is by no means necessary. 
+
+
+
+
+## Transience, recurrence, and positive recurrence.
+
++ The recurrence and transience for a continuous time Markov chain can be defined as for discrete time.  A an irreducbile Markov chain $X_t$ is [recurrent]{.red} if the chain starting from a state $i$ returns to $i$ with probability $1$ and [transient]{.red} if $X_t$ never return to $i$ with some non-zero probability.   
+
++ Transience/recurrence has nothing to do with the actual time spent in every state and so we have immediately 
+$$
+X_t \textrm { with rates } \alpha(i,j) \textrm{ is } \begin{array}{l} \textrm{transient} \\ \textrm{recurrent}\end{array} \iff 
+Y_n \textrm{ with transition } Q(i,j)=\frac{\alpha(i,j)}{\alpha(i)}
+\textrm{ is } \begin{array}{l} \textrm{transient} \\ \textrm{recurrent}\end{array} 
+$$
+
+
++ For positive recurrence we need to define the first return to a state $i$. This is most easily defined in terms of the return for the embeded Markov chain $Y_n$ and its first return  time $\tau(i)$.  The time until $X_0$ returns to $i$ will the sum of the time spent in each state.  If $S_n$ denotes the time of the jumps and $\tau(i)=n$ after visiting the state $j_0, j_1, \cdots j_{n-1}, j_n=i$ then the return time is 
+$$
+\sum_{k=0}^{n-1}(S_{k+1}- S_k) 
+$$ 
+where $S_{k+1}-S_k$ is exponential with paramter $\alpha(j_k)$.  The [first return time to state $i$]{.red} for the Markov chain $X_t$ is given 
+$$
+\Sigma(i) = \sum_{k=0}^{\tau(i)-1}(S_{k+1}- S_k) 
+$$
+
+
+
+## Stationary distribution for recurrent chains
+
+:::{#thm-stationarydistributioncontinuous}
+If the Markov chain with rates $\alpha(i,j)$ is irreducible and recurrent, then there exists a unique solution (up to a multiplicative constant) $\eta=(\eta(1), \eta(2), \cdots)$ to the equation $\eta A=0$ with 
+$$
+0 < \eta(i) < \infty \,.
+$$
+If it holds that $\sum_{i}\eta(i) < \infty$ then $\eta$ can be normalized to a stationary distribution and $X_t$ is positive recurrent. 
+:::
+
+:::{.proof}
+The equation $\eta A(k)=0$ can be written as
+$$
+\sum_{j \not= k} \eta(j) \alpha(j,k) = \alpha(k) \eta(k) \iff \sum_{j \not= k} \eta(j)\alpha(j) Q(j,k) = \eta(j)\alpha(j)
+$$
+That is the row vector $\mu$ with entries $\mu(k)=\alpha(k) \eta(k)$ must satisfy $\mu Q = \mu$. 
+
+If $X_t$ is recurrent then the embedded Markov chain $Y_n$ with transition $Q$ is recurrent and so by @thm-stationarydistribution there exists a solution to $\mu Q=\mu$ and therefore we found a solution for $\eta A=0$.  
+
+:::
+
+## {-}
+
+Moreover, from @thm-stationarydistribution we have a the representation
+$$
+\mu(j)=\alpha(j) \eta(j) = E\left[ \sum_{k=0}^{\tau(i)-1} {\bf 1}_{\{Y_k=j\}}\right]
+$$
+where $i$ is some fixed but arbitrary reference state (this counts the number of visits to the state $j$ between two consecutive visits to the reference state $i$)
+
+
+If we denote by $S_n$ the time of the $n^{th}$ jump for $X_t$ we have
+$$
+\begin{aligned}
+\eta(j) &= \sum_{k=0}^\infty E\left[  \frac{1}{\alpha(j)} {\bf 1}_{\{Y_k=j\}} {\bf 1}_{\{\tau(i) >k\}} \right] = \sum_{k=0}^\infty E\left[ (S_{k+1} -S_k) {\bf 1}_{\{Y_k=j\}} {\bf 1}_{\{\tau(i) >k\}} \right] 
+=  E\left[ \sum_{k=0}^{\tau(i)-1} (S_{k+1} -S_k) {\bf 1}_{\{Y_k=j\}} \right]
+\end{aligned}
+$$
+which is nothing but the time spent (by $X_t$) in the state $j$ between successive visits to $i$. 
+
+If $\sum_{j} \eta(j) <\infty$ then we have 
+$$
+E[\Sigma(j)]=E\left[ \sum_{k=0}^{\tau(i)-1} (S_{k+1} -S_k)\right] <\infty 
+$$
+which is the expected return time to state $i$.  That is the chain $X_t$ is positive recurrent. 
+
+
+## Ergodic theorem for positive recurrent Markov chains
+
+We have the following theorem which is the exact counterpart of the discrete time case (and is proved very similarly so we will omit the proof). 
+
+:::{#thm-ergodiccontinous} 
+Suppose $X_t$ is irreducible and positive recurrent. Then $X_t$ has a unique stationary distribution, and with probability $1$, the time spent in state $j$, converges to $\pi(j)$ 
+$$
+\lim_{t\to \infty}\int_0^t \mathbf{1}_{\{X_s=j\}} \, ds = \pi(j).
+$$
+Moreover we have Kac's formula: $\pi(j)$ is also equal to the average time between consecutive visits to state $j$: 
+$$
+\pi(j) = \frac{1}{E[\Sigma(j)|X_0=j]}.
+$$
+Conversely if $X_t$ has a stationary distribution then $X_t$ is positive recurrent. 
+:::
+
+
+## Birth and death process
+
++ A general [birth and death process]{.red} is a continuous time Markov chain with state space $\{0,1,2,\cdots\}$ 
+and whose only non-zero transition rates are 
+$$
+\begin{aligned}
+&\lambda(n) = \alpha(n,n+1)  & = \textrm{ birth rate for a population of size } n  & (\textrm{ for } n\ge 0) \\
+&\mu(n)=\alpha(n,n-1)        & =  \textrm{ death rate for a population of size } n & (\textrm{ for } n\ge 1)
+\end{aligned}
+$$
+
++ The Kolmogorov equations for the distribution of $X_t$ are, for $n\ge 1$ 
+$$
+\frac{d}{dt}p_t(n) = \underbrace{ \mu(n+1) p_t(n+1)}_{\textrm{ increase due do death} \atop \textrm{in a population of size } n+1} + 
+\underbrace{\lambda_{n-1} p_t(n-1)}_{\textrm{ increase due do birth} \atop \textrm{in a population of size } n-1} - \underbrace{(\lambda(n) + \mu(n))p_t(n)}_{\textrm{ decrease due do birth/death} \atop \textrm{in a population of size} n}. 
+$$
+For $n=0$, the eqation reads $\displaystyle \frac{d}{dt}p_t(0)= \mu(1) p_t(1) - \lambda(0) p_t(0)$. 
+
+
++ The generator has the form 
+$$
+\begin{matrix}
+0 \\ 1 \\ 2\\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+-\lambda(0) & \lambda(0) & 0 & 0 & \dots  \\
+\mu(1)   &-\lambda(1) -\mu(1) & \lambda(1) & 0 & \dots \\
+0 & \mu(2)   &-\lambda(2) -\mu(2) & \lambda(2) & \dots \\
+  \vdots       & \ddots & \ddots  & \ddots & \\
+\end{pmatrix}
+$$
+
+## {-}
+
++ The transition matrix for the embedded process $Y_n$ is 
+
+$$
+\begin{matrix}
+0 \\ 1 \\ 2\\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+0  & 1 & 0 & 0 & \dots  \\
+\frac{\mu(1)}{\mu(1)+ \lambda(1)}   & 0 & \frac{\lambda(1)}{\mu(1)+ \lambda(1)} & 0 & \dots \\
+0 & \frac{\mu(2)}{\mu(2)+ \lambda(2)}   & 0 & \frac{\lambda(2)}{\mu(2)+ \lambda(2)} & \dots \\
+  \vdots       & \ddots & \ddots  & \ddots & \\
+\end{pmatrix}
+$$
+which is the transition matrix of a general random walk on the non-negative integers.
+
+
+## Examples 
+
++ *Poisson process*: There is no death and the birth rate is constant
+$$
+\mu(n)=0 \quad  \textrm{ and } \quad  \lambda(n)=\lambda
+$$
+
++  *Queueing models:*  Imagine a Poisson process (with rate $\lambda$) describing the arrival of customers.  In the systems there are $k$ service station at which 
+the service time is exponential with rate $\mu$.  If one service station is empty, upon arrival a customer immediately enter a service station and stay 
+in the system until being served. If all stations are currently busy serving other customers, the customer wait until one stay becomes free.  These models are called
+$M/M/k$ queues where $M$ statnds for Markovian and $k$ is the number of queues, the first $M$ describing the arrival process and the second $M$ the service time (which is exponential).  
+  + $M/M/1$ queue:  If there is only one service station 
+  $$ 
+  \lambda(n)=\lambda  \quad \textrm{ and  } \quad \mu(n) =\mu
+  $$
+  + $M/M/k$ queue: If there is $k$ service station then the rates are
+  $$
+  \lambda(n)=\lambda  \quad \textrm{ and } \quad  \mu(n) = \left\{ \begin{array}{cl} n \mu & n \le k \\ k \mu & n > k  \end{array}   \right. 
+  $$
+  + $M/M/\infty$ queue: If there is $k$ service station then the rates are
+  $$
+  \lambda(n)=\lambda  \quad \textrm{ and  } \quad \mu(n) =n\mu
+  $$
+
+## {-}
+
++ *Population models*:  If $X_t$ describes the size of a population birth rate will be naturally proportional to the size of the population if we assume that 
+all individuals give birth or die with a certina rate. 
+
+  + Pure birth model:  no death occur and so 
+  $$
+  \lambda(n)=n \lambda  \quad \textrm{ and  } \quad \mu(n) = 0
+  $$
+
+  + Population model:  the rates 
+  $$
+  \lambda(n)=n \lambda  \quad \textrm{ and  } \quad \mu(n) = n \mu
+  $$
+
+  + Population model with immigration: if immigrants arrive acccording to a Poisson process with  rate $\nu$ the rates are
+  $$
+  \lambda(n)=n \lambda +\nu \quad \textrm{ and  } \quad \mu(n) = n \mu
+  $$
+
+## Transience 
++ To study transience we use the embedded Markov chain and @thm-criteriontransience.  Choosing the reference state $0$ we look 
+for a solution $a(n)$ with $a(0)=1$ and $0 < a(n)< 1$ for $n\ge 1$ of the system of equations
+$$
+\lambda(n) a(n+1) + \nu(n) a(n-1) = (\lambda(n) + \mu(n)) a(n)
+$$
+This leads to 
+$$
+a(n+1) - a(n) = \frac{\mu(n)}{\lambda(n)} (a(n+1) - a(n)) = \cdots = \prod_{j=1}^n\frac{\mu(j)}{\lambda(j)} (a(1) - 1)
+$$
+
+
+and thus, by telescoping, 
+$$
+a(n+1)= 1 + \sum_{k=0}^{n} (a(k+1) -a(k)) = 1 + \left[1+ \sum_{k=1}^{n} \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)}\right] (a(1) - 1)
+$$
+Taking $n \to \infty$ we must have $a(n)\to 0$ and $\sum_{k=1}^\infty \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)} < \infty$ and we find the solution 
+$$
+a(n)=\frac{\sum_{k=n}^\infty \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)}}{1+ \sum_{k=1}^\infty \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)}}
+$$
+
+## Recurrence
+
++ To study postive recurrence  we simply solve for the stationary distribution $\pi A=0$.  The first equation (for $n=0$) gives
+$$
+\mu(1) \pi(1) - \lambda(0)\pi(0) =0
+$${#eq-111}
+and 
+$$
+\lambda(n-1) \pi(n-1) + \mu(n+1) \pi(n+1) - (\mu(n)+ \lambda(n))\pi(n)=0 \textrm{ for } n\ge 1
+$$
+or  
+$$
+\mu(n+1)\pi(n+1)-\lambda(n) \pi(n)=\mu(n)\pi(n)-\lambda(n-1) \pi(n-1)
+$${#eq-112}
+Combining @eq-111 and @eq-112 gives 
+$$
+\pi(n) = \prod_{j=1}^n \frac{\lambda(j-1)}{\mu(j)} \pi(0)
+$$
+and thus we have a stationary distribution if and only if 
+$$
+\sum_{k=1}^\infty \prod_{j=1}^k \frac{\lambda(j-1)}{\mu(j)} <\infty\,.
+$$
+
+
+## {-}
+
++ The Poisson process are bure birth models are not irreducible and converge to $+\infty$ almost surely.
+
++  $M/M/1$-queue:  $\prod_{j=1}^n \frac{\mu(j)}{\lambda(j)}=\left(\frac{\lambda}{\mu}\right)^n$
+  
+    + Transient if $\mu < \lambda$.
+  
+    +  Recurrent if $\mu =\lambda$ 
+  
+    + Positive recurrent if $\lambda < \mu$ and with (geometric) stationary distribution:  $\pi(n)= \frac{\left(\frac{\lambda}{\mu}\right)^n}{1 -\frac{\lambda}{\mu} }$   
+
+
++  $M/M/k$-queue:
+$\prod_{j=1}^n \frac{\mu(j)}{\lambda(j)} = \left\{
+\begin{array}{cl}  
+n! \left( \frac{\mu}{\lambda} \right)^n  & n < k \\ 
+\frac{k!}{k^k}  \left(\frac{k\mu}{\lambda}\right)^n  &  n \ge k  
+\end{array}     
+\right. .$
+
+    + Transient if $k \mu < \lambda$.
+  
+    + Recurrent if $k \mu =\lambda$ 
+  
+    + Positive recurrent if $\lambda < k \mu$, the stationary $\pi$ is a bit messy to write.    
+
+
++  $M/M/\infty$-queue: $\prod_{j=1}^n \frac{\mu(j)}{\lambda(j)}= n! \left( \frac{\mu}{\lambda} \right)^n$. 
+
+    + Always positive recurrent with Poisson stationary distribution $\pi(n) = e^{- \frac{\lambda}{\mu}}  \frac{ \left(\frac{\lambda}{\mu}\right)^n}{n!}$
+
+
+# Brownian motion
+
+
+## Definition of Brownian motion
+
++ The Brownian motion $X_t$, $t\ge 0$, is a stochastic process taking value in $\mathbb{R}$ (or $\mathbb{R}^d$ ) and a model for random continuous motion taking place in space. 
+
++ By convention we set $X_0=0$ and start at $0$. Saying that the motion is completely random does not mean that $X_t$ and $X_s$ are independent but
+rather that the motion after time $s$, that is $X_t-X_s$, should be idependent of $X_s$.  More generally we will assume the property of independent increments like we did for the Poisson process $N_t$.  We will also assume that the moition does not have any prefered disrection so we must have $E[X_t]=0$. In addition we will require that the map $t \to X_t$ are continuous.  If the paths are not continuous then $N_t-t$ satisfies thses requirements.  But requirement of continuity of the paths  actually imply  that the *only* possibility is for the increments to be normally distributed. 
+
+
++ Formally a [Brownian motion or Wiener process with variance parameter $\sigma^2$]{.red} is a stochastic process $X_t$ such that 
+
+  1. $X_0=0$.
+  2. Independent increments: For any $n>1$ and times $s_1\le t_1\le s_2 \le t_2 \le \cdots \le s_n \le t_n$ the random variables $X_{t_1}-X_{s_1}$, $X_{t_2}-X_{s_2}$ $\cdots$  $X_{t_N}-X_{s_n}$ are independent.
+  3. For any $s< t$ the random variables $X_t-X_s$ has a normal distribution with mena $0$ and variance $\sigma^2(t-s)$.
+  4. The paths are continuous. 
+
+  As mentioned before, 3. actually follows from the other assumptions. 
+
+
+
+## Brownian motion as limit of random walks
+
+Let $Y_1, Y_2, \cdots$ be IID random variable with $E[Y_n]=0$ and $\textrm{ Var}(Y_n)=1$.  Then a [random walk]{.red} is defined 
+by 
+$$
+S_0=0, \quad S_n=Y_1 + \cdots + Y_n\,.
+$$
+We now define a process $X^{(n)}_t$ by rescaling time and the size of the increments to obtain a proper limit
+$$
+X^{(n)}_t = \frac{S_{\lfloor n t \rfloor}}{\sqrt{n}} \quad \textrm{ for }t\ge 0
+$$
+To understand this scaling note that if, say, $t=1$ we have $X^{(n)}_1=\frac{Y_1+ \cdots + Y_n}{\sqrt{n}}$ which has mean $0$ and variance $1$ which is independent of $n$ and we can hope to have a well-defined limit.  Using now the central limit theorem we find 
+$$
+X^{(n)}_t = \frac{S_{\lfloor n t \rfloor}}{\sqrt{n}} 
+= \frac{S_{\lfloor n t \rfloor}}{\sqrt{\lfloor n t \rfloor}} 
+\times \frac{\sqrt{\lfloor n t \rfloor}}{\sqrt{n}} \to  t Z  \quad \textrm{ in distribution}
+$$
+which has same distribution as $X_t$.  Similarly 
+$$
+X^{(n)}_t-X^{(n)}_s = \frac{S_{\lfloor n t \rfloor} -S_{\lfloor n s \rfloor} }{\sqrt{n}} =  \frac{1}{\sqrt{n}} \sum_{j=\lfloor n s \rfloor +1}^{\lfloor n t \rfloor} X_j
+\to (t-s) Z \quad \textrm{ in distribution}
+$$
+which has the same distribution as $X_t-X_s$.   Stronger form of convergences can be proved which shows that the path of the process are actually continuous in the limit but this is too technical for now. 
+
+
+
+
+
+## Properties of Brownian motion
+
++ **Probability distributions and the Markov property:** By definition $X_t$ is a time-homogeneous process since $X_{t+s}-X_s$ has the same distribution as $X_t$ and the Markov property follows from $X_t=X_s+ (X_t- X_s)$ which shows that the distribution of $X_t$ only depend on $X_s$. We have then 
+$$
+P\{ X_{t+s} \in A | X_s=x\} = P\{ X_t \in A - x \} = \int_{A-x} \frac{1}{\sqrt{2\pi t}} e^{-\frac{y^2}{2t}} dy =  \int_{A} \frac{1}{\sqrt{2\pi t}} e^{-\frac{(y-x)^2}{2t}} dy
+$$
+and so $X_t$ is a Markov chain with transition probability densities 
+$$
+p_t(x,y)= \frac{1}{\sqrt{2 \pi t}} e^{-\frac{(y-x)^2}{2t}}
+$$
+
+
++ **Reflection and Scaling**:  
+$$
+X_t \textrm{ is a Brownian motion } \implies \left\{ \begin{array}{l} Y_t = - X_t  \textrm{ is a Brownian motion }  \\ 
+Z_t =  \sqrt{a} X_{t/a}  \textrm{ is a Brownian motion for any } a>0 \\ \end{array} \right.
+$$
+To see this one check that properties 1.-4. are satified in [Definition of Brownian motion]
+
+## {-}
+
++ **Strong Markov property:** 
+  
+  + By the property of idependent increments (which leads immediately to the Markov property) if $X_t$ is a Brownian motion then $Y_t = X_{t+s}- X_s$ 
+   is a Brownian motion. 
+
+  + A [stopping time $T$]{.red} for a Brownian motion $X_t$ is random variable such that 
+  $$
+  P\{ T \le t\} \textrm{ is measurable with respect to } \{X_s\}_{0\le s \le t}
+  $$
+  that is we now when to stop based on past information only. 
+
+  + The [strong Markov property] is the following theorem which is believable but would require a more formal proof. 
+
+  :::{#thm-stongMarkovBM} 
+  If $X_t$ is a Brownian motion and $T$ a stopping time for the Brownian motion $X_t$ then $X_{T+t} - X_T$ is Brownian motion.
+  :::
+
++ **Gaussian process**: $X_t$ is a Gaussian process in the sense that the joint distribution of $X_{t_1}, X_{t_2}, \cdots, X_{t_n}$ is a
+$n$ dimensional normal random variable. To see this note that $X_{t_1}, X_{t_2}-X_{t_1}, \cdots, X_{t_n}-X_{t_1}$ is a 
+$n$ dimensional normal random variable (the components are independent) and that the two vector are related though a linear transformation.    
+To compute the covaraince is enough to compute $E[X_s X_t]$ and we have 
+$$
+\textrm{ For } s<t  \quad  E[X_s X_t]=E[X_s (X_s+ X_t-X_s)]= E[X_s^2] + E[X_s] E[X_t-X_s] = s
+$$
+and thus we find 
+$$
+E[X_sX_t]= \min \{s,t\}
+$$
+
+## {-}
+
++ **Reflection principle:**  
+
+  + Fix a value $a>0$ and consider the following [hitting time]{.red}
+  $$
+  T_a = \inf \{ t\ge 0, X_t=a\}
+  $$
+  that is $T_a$ is the first time the Brownian motion exceeds the value $a$.  
+The following results shows that you can reflect the Brownian motion around the line $x=a$ after $T_a$ and still obtain a Brownian motion
+
+:::{#thm-reflectionprinciple name="Reflection principle"}
+The process 
+$$
+Y_t = \left\{\begin{array}{cl} X_t & t \le T_a \\ 2a - X_t & t > T_a
+\end{array}  \right.
+$$
+is a Brownian motion
+:::
+
+:::{.proof}
+The proof relies on the strong Markov property and the relfectyion property to tells us that 
+$$
+X_{T_a+s} - X_{T_a} = X_{T_a+s} - a   \textrm{ and }    a - X_{T_a+s} 
+$$
+are  Brownian motions (starting at $0$) and so $2a  - X_{T_a+s}$ is a Brownian motion starting at $a$.  Therefore if we set $t=T_a+s$ for $t>T_a$ we see that $Y_t$ is  Brownian motion
+:::
+
+## {-}
+
+An illustration of the theorem is in the following figure 
+
+![Reflection principle](images/reflection.png){fig-align="center"}
+
+## {-}
+
+Using the reflection principle we can analyse the distribution of the  maximum of the Brownian motion over the time interval $[0,t]$ 
+$$
+M_t = \max_{0\le s \le t} X_s
+$$ 
+
+:::{#thm-distributionmax name="Distribution of the maximum of Brownian motion"}
+We have 
+$$
+P\{ M_t \ge a \} = 2 P\{X_t \ge a\}\,.
+$${#eq-maxcdf}
+The pdf of $M_t$ is given by 
+$$
+f_{M_t}(a)= \sqrt{\frac{2}{\pi t}} e^{-\frac{a^2}{t}} \quad \textrm{ for } a >0
+$$
+The pdf the first hitting time $T_a$ is given by 
+$$
+f_{T_a}(t)= \frac{a}{\sqrt{2 \pi}} t^{-3/2} e^{-\frac{a^2}{2t}} \quad \textrm{ for } t >0
+$$
+:::
+
+## {-}
+
+:::{.proof  name="@thm-distributionmax"}
+The proof of @eq-maxcdf follows from the reflection principle. 
+$$
+P\{ M_t \ge a \} = P\{ M_t \ge a , X_t\le a\} + P\{ M_t \ge a , X_t > a\}
+$$
+For the second term we note that if $X_t >a$ then $M_t\ge a$ and thus $P\{ M_t \ge a , X_t > a\}=P(X_t>a)$. 
+
+For the first term we use the reflection principle: the reflected path $Y_t$ is a Brownian motion and its first hitting time to $a$, say 
+$S_a$ is identical to $T_a$ (see the picture).  Therefore 
+$$
+\begin{aligned}
+P\{ M_t \ge a , X_t\le a\} &= P\{ T_a\le t , X_t\le a\} = P\{ S_a \le t , Y_t\le a\} \\
+&= P\{ T_a \le t , 2a - X_t\le a\} = P\{ T_a \le t , X_t \ge a\} 
+ =P\{ M_t \ge a , X_t \ge  a\}
+\end{aligned}
+$$
+which is identical to the first term. This concludes the proof of @eq-maxcdf and the density of $M_t$ is obteined by differentiation.
+
+To obtain the density of $T_a$ we have 
+$$
+P\{T_a \le t\} = P\{M_t > a\} =2 P\{ X_t > a\} = 2 P\left\{ \frac{X_t}{\sqrt{t}} > \frac{a}{\sqrt{t}} \right\} = 2 \int_{\frac{a}{\sqrt{t}}}^\infty \frac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}} dx 
+$$
+and differentiating with respect to $a$ proves the result.
+
+:::
+
+## Brownian motion in higher dimensions
+
+The [Brownian motion in dimension $d$]{.red} is defined by 
+$$
+X_t = ( X^{(1)}_t, \cdots, X^{(d)}_t)
+$$
+where the $X^{(i)}_t$ are independent one-dimensional Brownian motions.  
+
+One deduce from this immediately that 
+
+  1. $X_0=0$.
+  2. Independent increments: For any $n>1$ and times $s_1\le t_1\le s_2 \le t_2 \le \cdots \le s_n \le t_n$ the random variables $X_{t_1}-X_{s_1}$, $X_{t_2}-X_{s_2}$ $\cdots$  $X_{t_N}-X_{s_n}$ are independent.
+  3. For any $s< t$ the random variables $X_t-X_s$ has a normal distribution with mean $0$ and covariance $(t-s)I$. 
+  4. The paths are continuous. 
+
+One can conversely construct the Brownian motion from the properties 1. to 4. 
+
+The transition probabilities for Brownian motion are 
+$$
+p_t(x,y) = \frac{1}{ (2 \pi t)^{d/2}} e^{-\frac{||y-x\|^2}{2t}}
+$$
+and we have the Chapman-Kolmogorov equation
+$p_{t+s}(x,y) = \int_{\mathbf{R}^d} p_t(x,z) p_s(z,y) dz$.
+
+## Brownian motion and heat equation
+
+If $\mu_0=\rho_o(x) dx$ is the initial distribution of Brownian particles $X_o$. Then at time $t$ the distribution of $X_t$ 
+is given by $\mu_t=\rho_t(x) dx$ where
+$$
+\rho_t(y) = \int_{\mathbf{R}^d} \rho_0(x) p_{t}(x,y) \, dy
+$$
+Conversely if we consider a function $f: \mathbf{R}^d \to \mathbf{R}$ we have 
+$$
+E[ f(X_t) |X_0=x] = \int_{\mathbf{R}^d}  p_{t}(x,y) f(y) \, dy
+$$
+where we should pick $f$ such that the expectation of the right is well defined.  Note that since $p_t(x,y)=p_t(y,x)$ is symmetric these two equation are actually identical. 
+
+We now derive a differential equation for the function 
+$$
+f(t,x)\equiv E[ f(X_t) |X_0=x].
+$$
+We could simply differentiate, under the integral, the semigroup with respect to $t$, but instead we provide a more interesting probabilistic proof.  
+
+## {-} 
+
+Using a taylor expansion (in $d=1$ for simplicity) we obtain for functions $f$ which are nice enough (for example $C^2$, bounded, and  with bounded derivatives).
+$$
+f(X_{t+h}) - f(X_t) =  f'(X_t) (X_{t+h} - X_t) + \frac{1}{2} f''(X_t) (X_{t+h} - X_t)^2 + o((X_{t+h} - X_t)^2).
+$$
+Since the increments are independent for example $f'(X_t)$ and $(X_{t+h} - X_t)$ are independent and so we obtain
+$$
+\begin{aligned}
+\frac{\partial f}{\partial t}(x,t) & = \lim_{h \to 0} E\left[ \frac{1}{h}(f(X_{t+h}) - f(X_t)) \right] \\
+& = \lim_{h \to 0} \frac{1}{h} E[f'(X_t)] E[(X_{t+h} - X_t)] + \frac{1}{h} \frac{1}{2} E[f''(X_t)] E[(X_{t+h} - X_t)^2] + \frac{1}{h} o((X_{t+h} - X_t)^2)) 
+\end{aligned}
+$$
+Since $E[(X_{t+h} - X_t)]=0$ and $E[(X_{t+h} - X_t)^2]=\textrm{Var}(X_h)=h$ we obtain 
+$$
+\frac{\partial f}{\partial t}(x,t) = \frac{\partial^2 f}{\partial x^2}(x,t)
+$$
+and by a similar argument, in dimension $d$ we obtain the heat equation
+$$
+\frac{\partial f}{\partial t}(x,t) = \frac{1}{2}\Delta f (x,t)   \quad \quad \Delta = \sum_{i=1}^d \frac{\partial}{\partial x^{(i)}} \frac{\partial}{\partial x^{(i)}}
+$$
+
+
+## Heat equation in domain
+
+
+Given a domain $B$ with boundary $\partial B$ let us consider the boundary/initial value problem
+$$
+\begin{aligned}
+& \frac{\partial f}{\partial t}(x,t) = \frac{1}{2}\Delta f (x,t), x \in B \\
+& u(t,x)=g(x), x \in \partial B \\
+& u(0,x)=f(x), x \in B \\
+\end{aligned}
+$$
+We can express the solution in terms of Brownian motion and the hitting time to the boundary $\tau= \inf \{t: X_t \in \partial B \}$
+namely 
+$$
+u(t,x) = E\left[ f(X_t) 1_{\{\tau >t\}}  + g(X_{\tau}) 1_{\{\tau \le t\}}\right]\,.
+$$
+This is derived in a similar way as before.   If we take $t \to \infty$ and say $B$ is bounded then the path will eventually hit $\partial B$ 
+and so taking $t \to \infty$ we find the equation
+$$
+\begin{aligned}
+& \Delta u (x,t)=0, x \in B \\
+& u(t,x)=g(x), x \in \partial B \\
+\end{aligned}
+$$
+whose solution is 
+$$
+E\left[ g(X_{\tau}) 1_{\{\tau \le t\}}\right].
+$$
+
+## Recurrence and transience of Brownian motion
+
+
++ In dimension $1$ let us consider the interval $[0,R]$ and the function $g$ on the boundary with $g(0)=0$ and $g(R)=1$. Then solution the 
+equation 
+$$
+u''(x)=0\, \quad \textrm{ with } \quad u(0)=0, u(1)=1
+$$ 
+is $u(x)=\frac{x}{R}$ and so 
+$$
+u(x)= P\{ X_t \textrm{ hits } R \textrm{ before hitting } 0| X_0=x\} = \frac{x}{R} 
+$$
+Not coincidentally this is the same as the gambler's ruin (with $p=\frac{1}{2}$). Therefore
+$$
+P\{ X_t \textrm{ hits } 0| X_0=x \} = \lim_{R \to \infty} P\{ X_t \textrm{ hits } 0 \textrm{ before hitting } R| X_o=x\} = \lim_{R \to \infty} \left(1- \frac{x}{R}\right) =1
+$$
+and so $X_t$ is recurrent in $d=1$.
+
+
+## {-} 
+
++ In dimension $2$ or higher let us consider the annulus domain 
+$$
+B= \{ x\in \mathbf{R}^d\,;\, R_1 \le \|x\| \le R_2 \} 
+$$ 
+with $0< R_1 < R_2 < \infty$ and boundary 
+$$
+\partial B =\{ x\in \mathbf{R}^d\,;\, \|x\|=R_1 \textrm{ or } \|x\|=R_2 \}. 
+$$
+and let 
+$$
+g(y) = \left\{ \begin{array}{cl} 1 & \textrm{ if } \|x\|=R_2  \\ 0 & \textrm{ if } \|x\|=R_1 \end{array} \right.
+$$  
+Then $u(x)=E[ g(x_{\tau})| X_o=x ]$ is the probability that $X_t$ hits $\{\|x\|=R_2\}$ before hiting the $\{\|x\|=R_1\}$ and 
+$u(x)$ solves 
+$$
+\Delta u(x) =0, x \in B \quad \textrm{ and } \quad u(y)=g(y), x \in \partial B\,.
+$$
+
+## {-}
+
+By symmetry the solution is a function of the form $u(x)=\phi(\|x\|)$ since Brownian motion is invariant under rotation:  in polar coordinates 
+the heat equation reads
+$$
+\Delta \phi(r)= \phi''(r) + \frac{d-1}{r} \phi'(r) =0 \,.
+$$
+This ODE is easy to solve and has the general solution 
+$$
+\phi(r) = \left\{ \begin{array}{cl} c_1 \ln(r) + c_2  & \textrm{ if } d=2  \\ c_1 r^{d-2} + c_2 & \textrm{ if } d\ge 3 \end{array} \right.
+$$
+With the boundary values $\phi(R_1)=0$ and $\phi(R_2)=0$ we find 
+$$
+\phi(r) = \left\{ \begin{array}{cl}  \frac{\ln(r)- \ln(R_1)}{\ln(R_2) - \ln(R_1)}   & \textrm{ if } d=2  \\  \frac{ R_1^{2-d} - \|x\|^{2-d}}{R_1^{2-d} - R_2^{2-d}} & \textrm{ if } d\ge 3 \end{array} \right.
+$$
+To study the recurrence we take $R_1=\epsilon$ and $R_2 \to \infty$ to find the probability that a Brownian path hits a small ball around $0$ starting from $x$. 
+
+## {-}
+For $d=2$ since 
+$$
+\lim_{R_2 \to \infty} P\left\{ \|X_t\|=R_2 \textrm { before } \|X\|_t=\epsilon|X_0=x\right\} = \lim_{R_2 \to \infty} \frac{\ln(r)- \ln(\epsilon)}{\ln(R_2) - \ln(\epsilon)} = 0
+$$
+That is $X_t$ returns to the disc $\|x\| \le \epsilon$ with probability $1$ for arbitrary $\epsilon$ and it is natural to call $X_t$ recurrent.   
+Note however that $X_t$ never returns exactly to $0$.  Indeed we have 
+$$
+\lim_{\epsilon \to 0} P\left\{ \|X_t\|=\epsilon \textrm { before } \|X\|_t=R_2| X_0=x \right\} = \lim_{\epsilon \to 0}\left( 1- \frac{\ln(r)- \ln(\epsilon)}{\ln(R_2) - \ln(\epsilon)}\right) = 0
+$$
+
+
+
+
+
+For $d\ge 3$, arguing similarly we find that  
+$$
+\lim_{R_2 \to \infty} P\{ \|X_t\|=R_2 \textrm { before } \|X\|_t=\epsilon\} = \lim_{R_2 \to \infty} \frac{ \epsilon^{2-d} - \|x\|^{2-d}}{\epsilon^{2-d} - R_2^{2-d}}  = 1 - \left(\frac{\epsilon}{\|x\|}\right)^{d-2} < 1 
+$$
+and so the Brownian motion does not return near zero with non-zero probbaility: $X_t$ is transient in dimension $3$ or more. 
+
+## Brownian motion with drift
+
+For a vector $\mu \in \mathbb{R}^d$ let us consider the [Brownian motion with drift $\mu$]{.red} is given by 
+$$
+Y_t = X_t + t\mu
+$$
+It is not too difficult to see that the following properties hold
+
+  + $Y_t$ has independent increments and $Y_t-Y_s$ ($s\le t$) has a normal distribution with mean $\mu(t-s)$ and covariance $\sigma^2(t-s)I$. 
+
+  + The transition probabilities are $p_t(x,y)= \frac{1}{(2\pi \sigma^2 t)^{d/2}} e^{- \frac{\|y-x-t\mu\|^2}{2\sigma^2 t}}$.
+
+  + The function $f(t,x)=E\left[ f(Y_t)\right]$ satisfies the partial differential equation
+  $$
+  \frac{\partial f}{\partial t} = \frac{1}{2}\Delta f + \mu \nabla f
+  $$ 
