@@ -1,0 +1,495 @@
+
+
+## Definition of the Poisson process
+
++ [Counting processes $N_t$]{.red} are continuous time stochastic process which counts the number of events occuring up to time $t$: 
+$$
+N_t = \textrm{total number of events occuring up to time } t
+$$
+e.g. the number of accidents reported to an insurance company, the number of earthquakes in California, and so on.
+
+
++ The Poisson process is the simplest counting process, intuitvely   characterized by the following properties: 
+
+  1.  The number of events occuring in disjoint time intervals are independent.
+  2. The rate at which event occur is constant over time.  
+  1. The events occur one at a time.  
+
++ More formally a [Poisson process $N_t$ with rate paratmeter $\lambda$]{.red} is a continuous time stochastic process such that 
+
+     + *Independent increments*: Given times $s_1\le t_1 \le s_2 \le t_2 \cdots \le s_n \le t_n$ the random variables $X_{t_i}-X_{s_i}$ (that is the number of events occurring in the disjoint time intervals $[s_i,t_i]$) are independent.   
+
+    + The *rate* at which events occur is denoted by $\lambda>0$ and for any (small) time interval $[t, t + \Delta t]$ we have  
+    $$
+    \begin{aligned} 
+     P \{ N_{t + \Delta t }  = N_t \} &= 1- \lambda \Delta t  +o(\Delta t) & \\
+    P\{N_{t + \Delta t}= N_t +1\} &= \lambda \Delta t +o(\Delta t) &
+    \textrm{ with } \lim_{\Delta t \to 0}\frac{o(\Delta t)}{\Delta t}=0 \\
+    P\{N_{t + \Delta t}\ge N_t +2\} & = o(\Delta t) & 
+    \end{aligned}
+    $${#eq-Poisson}
+
+
+## Distribution of the Poisson process
+
+:::{#thm-poissonbasic name="Distribution of the Poisson process"}
+The Poisson process $N_t$ with $N_0=0$ has the distribution
+$$
+P\{N_t=k\} = e^{-\lambda t}\frac{(\lambda t)^k}{k!}
+$$
+i.e. $N_t$ has Poisson distribution with paramter $\lambda t$. Morever for $s$, $M_t=N_{t+s}-N_{s}$ is a Poisson process.
+::: 
+
+:::{.proof name="version 1 using Poisson limit"}
+Pick a large number $n$ and divide the interval $[0,t]$ into $n$ intervals of size $\frac{t}{n}$. Write  
+$$
+N_t = \sum_{j=1}^n\left( N_{j \frac{t}{n}}- N_{(j-1) \frac{t}{n}} \right)
+$$
+as a sum of $n$ independent random variables. If $n$ is large the probability that any of these random variables is at least $2$ is small. Indeed, by a union bound, we have 
+$$
+\begin{aligned}
+P\left\{ N_{j \frac{st}{n}}- N_{(j-1) \frac{t}{n}}   \ge 2 \textrm { for some } j \right\} &\le \sum_{j=1}^n P\left\{ N_{j \frac{t}{n}}- N_{(j-1) \frac{t}{n}}   \ge 2 \right\} 
+ \le n P \left\{  N_{\frac{t}{n}} \ge 2\right\} =   t \frac{o( \frac{t}{n})}{\frac{t}{n}} 
+\end{aligned} 
+$$
+which goes to $0$ as $n \to \infty$.
+
+:::
+
+## {-}  
+
+Therefore $N_t$ 
+is, approximately, a binomial random variables with 
+success probability $\lambda \frac{t}{n}$: 
+$$
+P(N_t=k) \approx {n \choose k} \left(\frac{\lambda t}{n} \right)^k
+\left(1-\frac{\lambda t}{n} \right)^{n-k}
+$$
+and as $n \to \infty$ this converges to a Poisson distribution with parameter $\lambda t$.  $\quad \blacksquare$.  \qed  
+
+
+:::{.proof name="version 2 using ODEs"}
+
+Let us derive a system of ODEs for the family $P_t(k)=P\left\{ N_t=k \right\}$. We have 
+$$
+\frac{d}{dt}P_t(k) = \lim_{\Delta t \to 0} \frac{P\left\{ N_{t+\Delta t}=k \right\} - P\left\{ N_t=k \right\} }{\Delta t}
+$$
+Conditioning we find 
+$$
+\begin{aligned}
+P\left\{ N_{t+\Delta t}=k \right\}=&
+P\left\{ N_{t+\Delta t}=k  | N_t=k \right\} P\left\{ X_{t}=k \right\} \\
+& + P\left\{ N_{t+\Delta t}=k | N_t=k-1 \right\}P\left\{ X_{t}={k-1} \right\} \\
+& + P\left\{ N_{t+\Delta t}=k |  N_t\le k-2\right\}P\left\{X_t \le k-2\right\} \\
+=& P_t(k) (1 - \lambda \Delta t) +  P_t(k-1) \Delta t + o(\Delta t)
+\end{aligned}
+$$
+and this gives the system of equations
+$$
+\begin{aligned}
+\frac{d}{dt}P_t(0)&= - \lambda P_t(0)    & \quad P_0(0)=1 \\
+\frac{d}{dt}P_t(k)&= \lambda P_t(k-1) - \lambda P_t(k) &\quad P_0(k)=0
+\end{aligned}
+$$
+
+:::
+
+## {-}
+
+We find $P_0(t)= e^{-\lambda t}$ for $k=0$. We use an integrating factor
+and set  $f_t(k)=e^{\lambda t} P_t(k)$.  We have then $f_t(0)=1$ 
+and for $k >0$
+$$
+\frac{d}{dt}f_t(k)=\lambda f_t(k-1),  \quad f_0(k)=0
+$$  
+which we can solve iteratively to find
+$$
+f_t(k) = \frac{(\lambda t)^k}{k!}
+$$
+and thus $N_t$ has distribution
+$$
+P_t(k)= e^{-\lambda t}\frac{(\lambda t)^k}{k!}\,.
+$$
+$\blacksquare$. 
+
+## Poisson process and exponential random variables
+
++ Poisson processes and exponential (and gamma) random variables are intimately related.  Given a Poisson process we consider the [interarrival times $T_1, T_2, \cdots$]{.red}:  $T_1$ is time of the occurence of the  first event, $T_2$ is the time elapsed between the first and second event, and so on.
+
+:::{#thm-interarrival} 
+If $N_t$ is a Poisson process with parameter $\lambda$ the interarrival times are independent exponential random variables with paramter $\lambda$.
+::: 
+
+:::{.proof}
+If $T_1 >t$ it means no event has occured up time $t$ and so $N_t=0$. Therefore 
+$$
+P\left\{ T_1 >t \right\} = P\left\{ N_t =0\right\} = e^{-\lambda t}
+$$
+and thus $T_1$ has an exponential distribution.  For $T_2$ we condition on $T_1$
+$$
+P\left\{ T_2 >t \right\} = \int P(T_2>t |T_1 =s) f_{T_1}(s) ds
+$$
+and, using the independence of the increments,
+$$
+P\left\{ T_2>t |T_1 =s\right\} = P\left\{ 0 \textrm{ events } in (s, s+t] | T_1=s \right\}  = P\left\{ 0 \textrm{ events } in (s, s+t] \right\} = e^{-\lambda t}
+$$
+from which we conclude that $T_2$ has exponential distribution and is independent of $T_1$.  This argument can be repeated for $T_3$ by conditioning on the time of the second event, $T_1+T_2$, and so on. $\quad \blacksquare$
+:::
+
+## {-}
+
+Another set of closely related quantities are the [arrival times of the $n^{th}$ event $S_1, S_2, \cdots$ ]{.red} which are related to the interarrival times by 
+$$
+S_1=T_1, \quad S_2=T_1+T_2, \quad S_3=T_1+T_2+T_3, \cdots
+$$
+By @thm-interarrival $S_n$ is the sum of $n$ independent exponential RVs and thus $S_n$ a Gamma RV with parameter $(n,\lambda)$ with density 
+$$
+f_{S_n}(t) = \lambda e^{-\lambda t}\frac{(\lambda t)^{n-1}}{(n-1)!}\, \quad \textrm{ for }t \ge 0\,.
+$$
+We can actually *prove* this fact using the Poisson process by noting that, by definition,  
+$$
+N_t \ge n   \iff  S_n \le t \,,
+$$
+that is if $n$ or more events have occured by time $t$ if and only  the $n^{th}$ event has occured prior to or at time $t$. 
+
+So the CDF of $S_n$ is 
+$$
+F_{S_n}(t)=P\{ S_n \le t\} = P \{ N_t \ge n\} = \sum_{j=n}^\infty e^{-\lambda t} \frac{(\lambda t)^{j}}{j!}
+$$
+and upon differentiating we find 
+$$
+f_{S_n}(t)= - \lambda e^{-\lambda t}  \sum_{j=n}^\infty \frac{(\lambda t)^{j}}{j!} +  \lambda e^{-\lambda t}\sum_{j=n}^\infty  \frac{(\lambda t)^{j-1}}{(j-1)!} = \lambda e^{-\lambda t} \frac{(\lambda t)^{n-1}}{(n-1)!}. \quad \blacksquare
+$$
+
+##  Poisson process and uniform distribution
+
+Let us start with a special case and assume assume that $N_t=1$, that is exactly one event has occured in $[0,t]$. Since the Poisson process has independent increments it seems reasonable the event may have occur with equal probability at any time on 
+$[0,t]$.  Indeed for $s\le t$ we have, using the independence of increments. 
+$$
+\begin{aligned}
+P\{T_1 \le s | N_t=1\} & = \frac{P\{T_1 \le s ,  N_t=1\}}{P\{N_t=1\}} = \frac{P\{\textrm{1 event in }(0,s] \textrm{ and no event in (s,t]} \}}{P\{N_t=1\}} \\
+&= \frac{ \lambda s e^{-\lambda s} e^{-\lambda(t-s)} }{\lambda t e^{-\lambda t}} = \frac{s}{t}
+\end{aligned}
+$$
+and thus the density of the arrival time $T_1$ conditioned on $N_t=1$ is uniform on $[0,t]$
+
+
+We study further the properties of the arrival times $S_1< S_2 <\cdots$ of a Poisson process.  The following result tells us that they follow  a uniform distribution on $[0,t]$.  
+
+:::{#thm-poissonorderstatistic} 
+Given the event $\{N_t=n\}$, the $n$ arrival times  $S_1, S_2, \cdots$ have the same distribution as the order statistics 
+for $n$ independent random variables uniformly distributed on $[0,t]$.
+:::
+
+:::{.proof}
+The conditional density of $(S_1, \cdots, S_n)$ given that $N_t=n$ can be obtained as follows.  If $S_1=s_1, S_2=s_2, \cdots, S_n=s_n$ and $N_t=n$ then the intearrival times must satisfy
+$$
+T_1=s_1,  T_2=s_2-s_1, \cdots, T_n= s_n-s_{n-1}, T_{n+1}> t-s_n.
+$$
+:::
+
+## {-}
+
+By the independence of the interarrival times proved in @thm-interarrival the conditional density is given by 
+$$
+\begin{aligned}
+f(s_1, s_2, \cdots, s_n|n) &= 
+\frac{f(s_1, s_2, \cdots, s_n, n)}{P\{N_t=nxw\}} \\
+&= \frac{\lambda e^{-\lambda s_1} \lambda e^{-\lambda(s_2-s_2)} \cdots \lambda e^{-\lambda(s_n-s_{n-1})} e^{-\lambda(t-s_n)} }{e^{-\lambda t} \frac{(\lambda t)^n}{n!} }  = \frac{n!}{t^n}
+\end{aligned}
+$$
+which is the joint density of the order statistic of $n$ uniform. $\blacksquare$
+
+
++ Recall if $X_1, \cdots, X_n$ are IID random variable with joint density $f(x_1)\cdots f(x_n)$ and $X^{(1)} \le X^{(2)} \le \cdots X^{(n)}$ 
+the order statistics, then the joint pdf of $X^{(1)}, \cdots ,X^{(n)}$ is given by 
+$$
+g(x_1,\cdots, x_n)) = \left\{
+  \begin{array}{cl}
+  n! f(x_1) \cdots  f(x_n) &\textrm{ if  } x_1 \le x_2 \le \cdots x_n \\
+  0 & \textrm{ else }
+  \end{array}
+  \right.
+$$
+
+
+
+## Simulation of Poisson process
+
+The characterization of the Poisson process in terms of exponential random variables suggest immediately a very simple algorithm to simulate 
+$N_t$.  
+
+:::{.algorithm name="Simulation algorithm for Poisson process"}
+Simulate independent exponential RVs $T_1, T_2, \cdots$ with parameter $\lambda$  and set $N_t=0$ for $0\le t <T_1$, $N_t=1$ for $T_1\le t <T_1+T_2$, and so on.
+:::
+
+```{python}
+
+#| label: fig-Poisson
+#| fig-cap: "A sample of the Poisson process"
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def poisson_process(rate, T):
+    # generate a Poisson process with rate `rate` up to time T
+    t = 0
+    events = [0]
+    while t < T:
+        # draw time until next event from an exponential distribution
+        dt = np.random.exponential(1/rate)
+        t += dt
+        if t < T:
+            # record time of event
+            events.append(t)
+    return events
+
+rate=10
+T=20
+events=np.asarray(poisson_process(rate,T))
+
+plt.figure() 
+plt.step(events,np.arange(0,len(events)), label=r'sample of $N_t$' )
+plt.plot(events,rate*events, label=r'$E[N_t]=\lambda t$')
+plt.legend()
+plt.xlabel('t')
+plt.ylabel(r'$ N_t $')
+plt.show()
+```
+
+## Simulation of a Poisson random variable
+
++ It is not easy to simulate directly a Poisson random variable $X$ from its pdf/cdf but we can do it elegantly using its relation with exponential random variable.   To do this generate independent exponential random variable until they sum up to $1$ (so as to generate $X=N_1$) and use the relation between exponential and uniform.      
+$$ 
+\begin{aligned}
+ X =n & \iff \sum_{k=1}^n T_k \le  1  <  \sum_{k=1}^{n+1} T_k 
+\iff \sum_{k=1}^n  - \frac{1}{\lambda} \ln(U_k) \le  1  <   \sum_{k=1}^{n+1}  - \frac{1}{\lambda} \ln(U_k) \\
+& \iff \ln( \prod_{k=1}^n U_k) \ge - \lambda   > \ln( \prod_{k=1}^{n+1} U_k)   
+\iff \prod_{k=1}^n U_k \ge  e^{-\lambda} >  \prod_{k=1}^{n+1} U_k 
+\end{aligned}
+$$
+
+
++ Algorithm to simulate a Poisson random variable with parameter $\lambda$: Generate random numbers until their product is smaller than $e^{-\lambda}$. 
+
+    + Generate  random number $U_1, U_2, \cdots$.
+    + Set $X=n$ if  $n+1 = \inf \left\{ j \,:\,  \prod_{k=1}^{j} U_j <  e^{-\lambda} \right\}$
+
+
+
+## Long-time behavior of the Poisson process
+
+
++ We investigate the behavior of $N_t$ for large time.  We prove a CLT type result, namely that  
+$$
+\lim_{t \to \infty} \frac{N_t-\lambda t}{\sqrt{\lambda t}} = Z \textrm{ in distribution}
+$$ 
+where $Z$ is a standard normal RV. 
+
++ Recall that the characteristic function of a Poisson RV $Y$ with parameter $\mu$ is $E[e^{i\alpha Y}]= e^ {\mu (e^{i\alpha} -1)}$. Therefore
+$$
+E\left[  e^{i \alpha \frac{N_t - \lambda t}{\sqrt{\lambda t}}}  \right] = e^{\lambda t \left( e^{i \frac{\alpha}{\sqrt{\lambda t}}} -i \frac{\alpha}{\sqrt{\lambda t}} -1\right)} 
+$$
+Expanding the exponential we have 
+$\lambda t \left(e^{i \frac{\alpha}{\sqrt{\lambda t}}} -i \frac{\alpha}{\sqrt{\lambda t}} -1\right) = - \frac{\alpha^2}{2} + O( \frac{1}{\sqrt{\lambda t}})$
+and thus $\lim_{t \to \infty} E\left[  e^{i \alpha \frac{N_t - \lambda t}{\sqrt{\lambda t}}}  \right]=e^{-\frac{\alpha^2}{2}}$.
+
++ The same computation shows also that, for any fixed $t$,  $\lim_{\lambda \to \infty} \frac{N_t-\lambda t}{\sqrt{\lambda t}} = Z \textrm{ in distribution}$ since rescaling the parameter is equivalent to rescaling time.
+
+
+
+
+
+
+## Sampling a Poisson process
+
++ We can *sample or split* a Poisson process. Suppose that every event of a Poisson process (independently of the other events) comes into two different types, say type $1$ with probability $p$  and type $2$ with probability $q=1-p$. 
+
+:::{#thm-poissonsample} 
+Suppose $N_t$ is a Poisson process with paramter $\lambda$ and that every event (independently) is either of type $1$ with probability $1$ or type $2$ with probability $q=1-p$. Then $N^{(1)}_t$, the number of events of type $1$ up to time $t$, and $N^{(2)}_t$, the number of events of type $2$ up to time $t$, are independent Poisson process with rate $\lambda p$ and $\lambda(1-p)$. 
+::: 
+
+:::{.proof}
+We check that $N^{(1)}_t$ satisfy the definition of a Poisson process and the use @thm-poissonbasic
+  
+$N^{(1)}_0=0$ and $N^{(1)}_t$ has independent increments since $N_t$ has independent increments and events are classified of type $1$ and $2$ independently of each other. 
+
+We have   
+$$ 
+\begin{aligned}
+P \left\{ N^{(1)}_{t + \Delta t}= N^{(1)}_t +1 \right\} & =
+P\{ N_{t + \Delta t}= N_t +1 \textrm{ and the event is of type } 1 \} \\
+& + P\{ N_{t + \Delta t} \ge N_t +2 \textrm{ and exactly one event is of type } 1 \} \\
+&= \lambda \Delta t \times p + o(\Delta t)
+\end{aligned}
+$$
+
+::: 
+
+## {-}
+
+$$
+  \begin{aligned}
+  P \left\{ N^{(1)}_{t + \Delta t}= N^{(1)}_t \right\} & =
+  P\{ N_{t + \Delta t}= N_t   \} 
+   + P\{ N_{t + \Delta t} = N_t + 1 \textrm{ and the  event is of type 2}  \} \\
+  & + P\{ N_{t + \Delta t} \ge N_t + 2 \textrm{ and no event of type $1$} \}  \\
+  &= (1-  \lambda  \Delta t)  + \lambda \Delta t (1-p) + o(\Delta t) =1-\lambda \Delta t p + o(\Delta t)
+  \end{aligned}
+$$
+$$
+  P \left\{ N^{(1)}_{t + \Delta t}\ge  N^{(1)}_t +2 \right\} =o(\Delta t)
+$$
+
+
+Finally to show that $N^{(1)}_t$ and $N^{(2)}_t$ are independent we compute their joint PDF by conditioning on the value of $N_t$ and find
+$$
+\begin{aligned}
+P\left\{N^{(1)}_t =n , N^{(2)}_t =m \right\} &= P\left\{N^{(1)}_t =n , N^{(2)}_t =m | N_t={n+m}\right\} P\left\{N_t={n+m}\right\} \\
+&= {n+m \choose n} p^n (1-p)^m  e^{-\lambda t} \frac{(\lambda t)^{n+m}}{(n+m)!}  \\ 
+&= e^{-\lambda p t} \frac{ (\lambda p t )^n}{n!} e^{-\lambda (1-p) t} \frac{(\lambda(1-p) t)^{m}}{m!}
+\end{aligned} 
+$$
+$\blacksquare$
+
+
+
+## The coupon collecting problem
+
++ We revisit the couplon collector but we relax the assumption that all the toys are equally probable. We assume that any box contains toy $i$ with probability $p_i$.  How do we compute now the expected number of boxes needed to collect all the $M$ toys?  The argument used earlier does not generalize easily.
+
+ 
++ We use the following trick or radomizing the time between boxes.  Instead of collecting boxes at fixed time interval, we collect them at times which are exponentially distributed with paramter $1$.  Then  the number of boxes collected up to time $t$ a Poisson process $N_t$ with rate $\lambda=1$ (on average it takes the same time to get a new box).  We have now  $M$ types of events (getting a box with toy $i$) and  we split the poisson process accordingly. Then by @thm-poissonsample the number of toys of type $i$ collected up to time $t$, $N^{(i)}_t$ is a Poisson process with rate $\lambda p_i=p_i$ and the Poisson processes $N^{(i)}_t$ are independent.
+
+
++ We now consider the times 
+$$
+T^{(i)} = \textrm{ time of the first event for the process } N^{(i)}_t
+$$
+that is the time where the first toy of type $i$ is collected.  The times $T^{(i)}$ are independent since the underlying Poisson processes are independent, and are exponential with paramter $p_i$. 
+Furthermore 
+$$
+S = \max_{i} T^{(i)} = \textrm{ time until one toy of each type has been collected}.
+$$
+By independence we have 
+$$
+P\left\{ S \le t \right\} = P\left\{ \max_{i} T^{(i)} \le t\right\} = \prod_{i=1}^M P\left\{ T^{(i)} \le t \right\} = \prod_{i=1}^M (1- e^{-p_it})
+$$
+
+## {-}
+
+Thus 
+$$
+E[S]= \int_0^\infty P\{S \ge t\} dt = \int_0^\infty ( 1-  \prod_{i=1}^M (1- e^{-p_it}) )\, dt
+$$
+
++ Finally we relate $S$ to the original question. If $X$ is the number of box needed to collect all the toys then 
+we have 
+$$
+S = \sum_{k=1}^X S_k 
+$$
+where $S_k$ aree IID exponential with parameter $1$. But conditioning it is easy to see that 
+$$
+E[S]= E[N]E[S_1] = E[N]
+$$
+and we are done.  
+
+
+
+## Poisson process with variable rate
+
++ We can generalize the Poisson process by making the rate $\lambda(t)$ at which event occur depend on time: a [nonhomogeneous Poisson process $N_t$ with rate paratmeter $\lambda(t)$]{.red} is a continuous time stochastic process such that 
+
+ + *Independent increments*: Given times $s_1\le t_1 \le s_2 \le t_2 \cdots \le s_n \le t_n$ the random variables $N_{t_i}-N_{s_i}$ (that is the number of events occurring in the disjoint time intervals $[s_i,t_i]$) are independent.   
+
+  + We have
+$$
+\begin{aligned} 
+  P \{ N_{t + \Delta t }  = N_t \} &= 1- \lambda(t) \Delta t  +o(\Delta t) & \\
+  P\{N_{t + \Delta t}= N_t +1\} &= \lambda(t) \Delta t +o(\Delta t) &
+  \textrm{ with } \lim_{\Delta t \to 0}\frac{o(\Delta t)}{\Delta t}=0 \\
+   P\{N_{t + \Delta t}\ge N_t +2\} & = o(\Delta t) & 
+\end{aligned}
+$${#eq-Poissonnonhomegeneous}
+
++ One way to construct a nonhomgeneous Poisson process is by sampling it in a time-dependent manner.  Suppose $\lambda(t)$ is bounded (locally in $t$), then we pick $\lambda > \lambda(t)$.  We consider a Poisson process
+$M_t$  with constant rate $\lambda$, and  if an event occurs at time $t$ then we decide to keep this event with probability $p(t)=\frac{\lambda(t)}{\lambda}$ and we discard the event with probability $1-p(t)$.  By the same argument we used in the section [Sampling a Poisson process] we see the number of kept events satisfies the definition of a non-homogeneous Poisson process in @eq-Poissonnonhomegeneous
+
++ Let us consider an event for the process $M_t$  which occured in the interval $[0,t]$.  By our analysis of arrival time we know that this event occured a time which is uniformly distributed on the interval $[0,t]$. Therefore the probability that this event was accepted and contribute to $N_t$ is therefore 
+$$
+p_t = \frac{1}{t}\int_0^t \frac{\lambda(s)}{\lambda} \, ds 
+$$   
+
+## {-}
+
+By repeating then the second part of the arguement in the section [Sampling a Poisson process] we see that $M_t$ has a Poisson distribution
+with parameter
+$$
+\lambda t p_t = \int_0^t \lambda(s) \, ds
+$$
+and in particular 
+$$
+E[N_t] = \int_0^t \lambda(s) \, ds 
+$$
+
+##  Queueing model with infinitely many servers
+
++ Assume that the the flow of customers entering an onine store follows a Poisson process $N_t$ with rate $\lambda$.  The time $S$ spent 
+in the store for a single customer (browsing around, checking out, etc..) is given by tis CDF  $G(t)=P\{ S \le t\}$ and we assume that
+the customers are independent of each other.  
+
+
++ To figure out how to allocate ressources one wants to figure out what is number of customers, $M_t$,  which are still in the sytem  at time $t$.  
+
++ To find the distribution of $M_t$ let us consider one of the customer by time $t$. If he arrived at time $s\le t$ then he will have left the system at time $t$ with probability $G(t-s)$ and will still be in the system by time $t$ with probability $1-G(t-s)$. 
+Since the arrival time of that customer is uniform on $[0,t]$ the distribution of $M_t$ is Poisson with mean 
+$$
+  E[M_t] = \int_0^t (1- G(t-s))ds = \lambda \int_0^t (1 - G(s))ds,.
+$$   
+For large $t$, we see that $E[M_t] \approx \lambda E[S]$.  
+
+
+
+
+
+
+## Compound Poisson process
+
++ Suppose that the number of claims receieved by an insurance follows a Poisson process. The size of each claim will be different and it natural to assume that claims are independent from each other. If we look at the total claims incurred by the insurance company this leads to a stochastic process called a compound Poisson process.   
+
+
++ A stochastic process $X_t$ is called a [compound Poisson process]{.red}  if it has the form
+$$
+X_t = \sum_{k=1}^{N_t} Y_k  
+$$
+where $N_t$ is a Poisson process and $Y_1, Y_2,\cdots$ are IID random variables which are also independent of $N_t$. 
+
++ The process $X_t$ has stationary independent increments. 
+Using that $N_t-N_s$ is a Poisson process 
+$$
+X_t-X_s = \sum_{k=N_s}^{N_t} Y_k \textrm{ has the same distribution as } X_{t-s}= \sum_{0}^{N_{t-s}} Y_k
+$$
+
++ We can compute the MGF of $X_t$ (or its charactersitic function) by conditining on $N_t$. Suppose $m_Y(\alpha)=E[e^{\alpha Y}]$ is the moment generating function of $Y$ and using the MGF for the Poisson RV we find
+$$
+\begin{aligned}
+m_{X_t}(\alpha)& =E\left[ e^{\alpha X_t}\right] = E\left[ e^{\alpha \sum_{k=1}^{N_t} Y_k} \right] = \sum_{n=0}^\infty E\left[ e^{\alpha \sum_{k=1}^{N_t} Y_k} | N_t =n \right] P\{n_t=n\} \\
+& = \sum_{n=0}^\infty m(\alpha)^n P\{n_t=n\} = e^{\lambda t ( m(\alpha) -1 )}
+\end{aligned}
+$$
+
+## {-} 
+
+We can compute then the mean and variance
+$$
+\begin{aligned}
+m_{X_t}'(\alpha)&= e^{\lambda t ( m(\alpha) -1 )} \lambda t m'(\alpha) \\
+m_{X_t}''(\alpha)&= e^{\lambda t ( m(\alpha) -1 )} (\lambda t m''(\alpha) + \lambda t)^2() m'(\alpha)^2 )
+\end{aligned}
+$$
+and thus 
+$$
+E[X_t]= \lambda t E[Y] 
+\quad \textrm{ and } Var[X_t]=  \lambda t ({\rm Var}(Y) + E[Y]^2]) 
+$$
+With a bit more work we could prove a central limit theorem.

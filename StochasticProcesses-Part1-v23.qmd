@@ -1,0 +1,59 @@
+---
+title: "Stochastic Processes, I: Simulation and Monte-Carlo"
+subtitle: "Math 606, Spring 2023 "
+author: "Luc Rey-Bellet"
+institute: "University of Massachusetts Amherst"
+date: today
+css: styles.css
+number-sections: true
+crossref:
+  chapters: true
+format: 
+ revealjs:
+    number-sections: true
+    number-depth: 2
+    embed-resources: true
+    logo: images/Umasslogo.png
+    footer: "Simulation and MC"
+    smaller: true
+    theme: simple
+    slide-number: c/t
+    toc: true
+    toc-depth: 1
+    bibliography: stochastic-bib.bib
+    html-math-method: katex
+    jumpToSlide: true
+ 
+ pdf: 
+    documentclass: scrbook
+    lof: true
+    lot: true
+    geometry:
+      - top=30mm
+      - left=20mm
+      - heightrounded
+    fontfamily: libertinus
+    colorlinks: true
+---   
+
+
+
+# Simulation {#sec-simulation}
+
+{{< include Sections/simulation.qmd >}}
+
+
+# Monte-Carlo methods {#sec-MonteCarlo}
+
+{{< include Sections/Monte-Carlo.qmd >}}
+
+# Variance reduction techniques {#sec-variancereduction} 
+
+{{< include Sections/variancereduction.qmd >}}
+
+# Concentration inequalities and non-asymptotic confidence intervals {#sec-concentration}
+
+{{< include Sections/concentration.qmd >}}
+
+
+## References

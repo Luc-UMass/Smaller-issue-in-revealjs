@@ -1,0 +1,370 @@
+
+## Definition of Brownian motion
+
++ The Brownian motion $X_t$, $t\ge 0$, is a stochastic process taking value in $\mathbb{R}$ (or $\mathbb{R}^d$ ) and a model for random continuous motion taking place in space. 
+
++ By convention we set $X_0=0$ and start at $0$. Saying that the motion is completely random does not mean that $X_t$ and $X_s$ are independent but
+rather that the motion after time $s$, that is $X_t-X_s$, should be idependent of $X_s$.  More generally we will assume the property of independent increments like we did for the Poisson process $N_t$.  We will also assume that the moition does not have any prefered disrection so we must have $E[X_t]=0$. In addition we will require that the map $t \to X_t$ are continuous.  If the paths are not continuous then $N_t-t$ satisfies thses requirements.  But requirement of continuity of the paths  actually imply  that the *only* possibility is for the increments to be normally distributed. 
+
+
++ Formally a [Brownian motion or Wiener process with variance parameter $\sigma^2$]{.red} is a stochastic process $X_t$ such that 
+
+  1. $X_0=0$.
+  2. Independent increments: For any $n>1$ and times $s_1\le t_1\le s_2 \le t_2 \le \cdots \le s_n \le t_n$ the random variables $X_{t_1}-X_{s_1}$, $X_{t_2}-X_{s_2}$ $\cdots$  $X_{t_N}-X_{s_n}$ are independent.
+  3. For any $s< t$ the random variables $X_t-X_s$ has a normal distribution with mena $0$ and variance $\sigma^2(t-s)$.
+  4. The paths are continuous. 
+
+  As mentioned before, 3. actually follows from the other assumptions. 
+
+
+
+## Brownian motion as limit of random walks
+
+Let $Y_1, Y_2, \cdots$ be IID random variable with $E[Y_n]=0$ and $\textrm{ Var}(Y_n)=1$.  Then a [random walk]{.red} is defined 
+by 
+$$
+S_0=0, \quad S_n=Y_1 + \cdots + Y_n\,.
+$$
+We now define a process $X^{(n)}_t$ by rescaling time and the size of the increments to obtain a proper limit
+$$
+X^{(n)}_t = \frac{S_{\lfloor n t \rfloor}}{\sqrt{n}} \quad \textrm{ for }t\ge 0
+$$
+To understand this scaling note that if, say, $t=1$ we have $X^{(n)}_1=\frac{Y_1+ \cdots + Y_n}{\sqrt{n}}$ which has mean $0$ and variance $1$ which is independent of $n$ and we can hope to have a well-defined limit.  Using now the central limit theorem we find 
+$$
+X^{(n)}_t = \frac{S_{\lfloor n t \rfloor}}{\sqrt{n}} 
+= \frac{S_{\lfloor n t \rfloor}}{\sqrt{\lfloor n t \rfloor}} 
+\times \frac{\sqrt{\lfloor n t \rfloor}}{\sqrt{n}} \to  t Z  \quad \textrm{ in distribution}
+$$
+which has same distribution as $X_t$.  Similarly 
+$$
+X^{(n)}_t-X^{(n)}_s = \frac{S_{\lfloor n t \rfloor} -S_{\lfloor n s \rfloor} }{\sqrt{n}} =  \frac{1}{\sqrt{n}} \sum_{j=\lfloor n s \rfloor +1}^{\lfloor n t \rfloor} X_j
+\to (t-s) Z \quad \textrm{ in distribution}
+$$
+which has the same distribution as $X_t-X_s$.   Stronger form of convergences can be proved which shows that the path of the process are actually continuous in the limit but this is too technical for now. 
+
+
+
+
+
+## Properties of Brownian motion
+
++ **Probability distributions and the Markov property:** By definition $X_t$ is a time-homogeneous process since $X_{t+s}-X_s$ has the same distribution as $X_t$ and the Markov property follows from $X_t=X_s+ (X_t- X_s)$ which shows that the distribution of $X_t$ only depend on $X_s$. We have then 
+$$
+P\{ X_{t+s} \in A | X_s=x\} = P\{ X_t \in A - x \} = \int_{A-x} \frac{1}{\sqrt{2\pi t}} e^{-\frac{y^2}{2t}} dy =  \int_{A} \frac{1}{\sqrt{2\pi t}} e^{-\frac{(y-x)^2}{2t}} dy
+$$
+and so $X_t$ is a Markov chain with transition probability densities 
+$$
+p_t(x,y)= \frac{1}{\sqrt{2 \pi t}} e^{-\frac{(y-x)^2}{2t}}
+$$
+
+
++ **Reflection and Scaling**:  
+$$
+X_t \textrm{ is a Brownian motion } \implies \left\{ \begin{array}{l} Y_t = - X_t  \textrm{ is a Brownian motion }  \\ 
+Z_t =  \sqrt{a} X_{t/a}  \textrm{ is a Brownian motion for any } a>0 \\ \end{array} \right.
+$$
+To see this one check that properties 1.-4. are satified in [Definition of Brownian motion]
+
+## {-}
+
++ **Strong Markov property:** 
+  
+  + By the property of idependent increments (which leads immediately to the Markov property) if $X_t$ is a Brownian motion then $Y_t = X_{t+s}- X_s$ 
+   is a Brownian motion. 
+
+  + A [stopping time $T$]{.red} for a Brownian motion $X_t$ is random variable such that 
+  $$
+  P\{ T \le t\} \textrm{ is measurable with respect to } \{X_s\}_{0\le s \le t}
+  $$
+  that is we now when to stop based on past information only. 
+
+  + The [strong Markov property] is the following theorem which is believable but would require a more formal proof. 
+
+  :::{#thm-stongMarkovBM} 
+  If $X_t$ is a Brownian motion and $T$ a stopping time for the Brownian motion $X_t$ then $X_{T+t} - X_T$ is Brownian motion.
+  :::
+
++ **Gaussian process**: $X_t$ is a Gaussian process in the sense that the joint distribution of $X_{t_1}, X_{t_2}, \cdots, X_{t_n}$ is a
+$n$ dimensional normal random variable. To see this note that $X_{t_1}, X_{t_2}-X_{t_1}, \cdots, X_{t_n}-X_{t_1}$ is a 
+$n$ dimensional normal random variable (the components are independent) and that the two vector are related though a linear transformation.    
+To compute the covaraince is enough to compute $E[X_s X_t]$ and we have 
+$$
+\textrm{ For } s<t  \quad  E[X_s X_t]=E[X_s (X_s+ X_t-X_s)]= E[X_s^2] + E[X_s] E[X_t-X_s] = s
+$$
+and thus we find 
+$$
+E[X_sX_t]= \min \{s,t\}
+$$
+
+## {-}
+
++ **Reflection principle:**  
+
+  + Fix a value $a>0$ and consider the following [hitting time]{.red}
+  $$
+  T_a = \inf \{ t\ge 0, X_t=a\}
+  $$
+  that is $T_a$ is the first time the Brownian motion exceeds the value $a$.  
+The following results shows that you can reflect the Brownian motion around the line $x=a$ after $T_a$ and still obtain a Brownian motion
+
+:::{#thm-reflectionprinciple name="Reflection principle"}
+The process 
+$$
+Y_t = \left\{\begin{array}{cl} X_t & t \le T_a \\ 2a - X_t & t > T_a
+\end{array}  \right.
+$$
+is a Brownian motion
+:::
+
+:::{.proof}
+The proof relies on the strong Markov property and the relfectyion property to tells us that 
+$$
+X_{T_a+s} - X_{T_a} = X_{T_a+s} - a   \textrm{ and }    a - X_{T_a+s} 
+$$
+are  Brownian motions (starting at $0$) and so $2a  - X_{T_a+s}$ is a Brownian motion starting at $a$.  Therefore if we set $t=T_a+s$ for $t>T_a$ we see that $Y_t$ is  Brownian motion
+:::
+
+## {-}
+
+An illustration of the theorem is in the following figure 
+
+![Reflection principle](images/reflection.png){fig-align="center"}
+
+## {-}
+
+Using the reflection principle we can analyse the distribution of the  maximum of the Brownian motion over the time interval $[0,t]$ 
+$$
+M_t = \max_{0\le s \le t} X_s
+$$ 
+
+:::{#thm-distributionmax name="Distribution of the maximum of Brownian motion"}
+We have 
+$$
+P\{ M_t \ge a \} = 2 P\{X_t \ge a\}\,.
+$${#eq-maxcdf}
+The pdf of $M_t$ is given by 
+$$
+f_{M_t}(a)= \sqrt{\frac{2}{\pi t}} e^{-\frac{a^2}{t}} \quad \textrm{ for } a >0
+$$
+The pdf the first hitting time $T_a$ is given by 
+$$
+f_{T_a}(t)= \frac{a}{\sqrt{2 \pi}} t^{-3/2} e^{-\frac{a^2}{2t}} \quad \textrm{ for } t >0
+$$
+:::
+
+## {-}
+
+:::{.proof  name="@thm-distributionmax"}
+The proof of @eq-maxcdf follows from the reflection principle. 
+$$
+P\{ M_t \ge a \} = P\{ M_t \ge a , X_t\le a\} + P\{ M_t \ge a , X_t > a\}
+$$
+For the second term we note that if $X_t >a$ then $M_t\ge a$ and thus $P\{ M_t \ge a , X_t > a\}=P(X_t>a)$. 
+
+For the first term we use the reflection principle: the reflected path $Y_t$ is a Brownian motion and its first hitting time to $a$, say 
+$S_a$ is identical to $T_a$ (see the picture).  Therefore 
+$$
+\begin{aligned}
+P\{ M_t \ge a , X_t\le a\} &= P\{ T_a\le t , X_t\le a\} = P\{ S_a \le t , Y_t\le a\} \\
+&= P\{ T_a \le t , 2a - X_t\le a\} = P\{ T_a \le t , X_t \ge a\} 
+ =P\{ M_t \ge a , X_t \ge  a\}
+\end{aligned}
+$$
+which is identical to the first term. This concludes the proof of @eq-maxcdf and the density of $M_t$ is obteined by differentiation.
+
+To obtain the density of $T_a$ we have 
+$$
+P\{T_a \le t\} = P\{M_t > a\} =2 P\{ X_t > a\} = 2 P\left\{ \frac{X_t}{\sqrt{t}} > \frac{a}{\sqrt{t}} \right\} = 2 \int_{\frac{a}{\sqrt{t}}}^\infty \frac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}} dx 
+$$
+and differentiating with respect to $a$ proves the result.
+
+:::
+
+## Brownian motion in higher dimensions
+
+The [Brownian motion in dimension $d$]{.red} is defined by 
+$$
+X_t = ( X^{(1)}_t, \cdots, X^{(d)}_t)
+$$
+where the $X^{(i)}_t$ are independent one-dimensional Brownian motions.  
+
+One deduce from this immediately that 
+
+  1. $X_0=0$.
+  2. Independent increments: For any $n>1$ and times $s_1\le t_1\le s_2 \le t_2 \le \cdots \le s_n \le t_n$ the random variables $X_{t_1}-X_{s_1}$, $X_{t_2}-X_{s_2}$ $\cdots$  $X_{t_N}-X_{s_n}$ are independent.
+  3. For any $s< t$ the random variables $X_t-X_s$ has a normal distribution with mean $0$ and covariance $(t-s)I$. 
+  4. The paths are continuous. 
+
+One can conversely construct the Brownian motion from the properties 1. to 4. 
+
+The transition probabilities for Brownian motion are 
+$$
+p_t(x,y) = \frac{1}{ (2 \pi t)^{d/2}} e^{-\frac{||y-x\|^2}{2t}}
+$$
+and we have the Chapman-Kolmogorov equation
+$p_{t+s}(x,y) = \int_{\mathbf{R}^d} p_t(x,z) p_s(z,y) dz$.
+
+## Brownian motion and heat equation
+
+If $\mu_0=\rho_o(x) dx$ is the initial distribution of Brownian particles $X_o$. Then at time $t$ the distribution of $X_t$ 
+is given by $\mu_t=\rho_t(x) dx$ where
+$$
+\rho_t(y) = \int_{\mathbf{R}^d} \rho_0(x) p_{t}(x,y) \, dy
+$$
+Conversely if we consider a function $f: \mathbf{R}^d \to \mathbf{R}$ we have 
+$$
+E[ f(X_t) |X_0=x] = \int_{\mathbf{R}^d}  p_{t}(x,y) f(y) \, dy
+$$
+where we should pick $f$ such that the expectation of the right is well defined.  Note that since $p_t(x,y)=p_t(y,x)$ is symmetric these two equation are actually identical. 
+
+We now derive a differential equation for the function 
+$$
+f(t,x)\equiv E[ f(X_t) |X_0=x].
+$$
+We could simply differentiate, under the integral, the semigroup with respect to $t$, but instead we provide a more interesting probabilistic proof.  
+
+## {-} 
+
+Using a taylor expansion (in $d=1$ for simplicity) we obtain for functions $f$ which are nice enough (for example $C^2$, bounded, and  with bounded derivatives).
+$$
+f(X_{t+h}) - f(X_t) =  f'(X_t) (X_{t+h} - X_t) + \frac{1}{2} f''(X_t) (X_{t+h} - X_t)^2 + o((X_{t+h} - X_t)^2).
+$$
+Since the increments are independent for example $f'(X_t)$ and $(X_{t+h} - X_t)$ are independent and so we obtain
+$$
+\begin{aligned}
+\frac{\partial f}{\partial t}(x,t) & = \lim_{h \to 0} E\left[ \frac{1}{h}(f(X_{t+h}) - f(X_t)) \right] \\
+& = \lim_{h \to 0} \frac{1}{h} E[f'(X_t)] E[(X_{t+h} - X_t)] + \frac{1}{h} \frac{1}{2} E[f''(X_t)] E[(X_{t+h} - X_t)^2] + \frac{1}{h} o((X_{t+h} - X_t)^2)) 
+\end{aligned}
+$$
+Since $E[(X_{t+h} - X_t)]=0$ and $E[(X_{t+h} - X_t)^2]=\textrm{Var}(X_h)=h$ we obtain 
+$$
+\frac{\partial f}{\partial t}(x,t) = \frac{\partial^2 f}{\partial x^2}(x,t)
+$$
+and by a similar argument, in dimension $d$ we obtain the heat equation
+$$
+\frac{\partial f}{\partial t}(x,t) = \frac{1}{2}\Delta f (x,t)   \quad \quad \Delta = \sum_{i=1}^d \frac{\partial}{\partial x^{(i)}} \frac{\partial}{\partial x^{(i)}}
+$$
+
+
+## Heat equation in domain
+
+
+Given a domain $B$ with boundary $\partial B$ let us consider the boundary/initial value problem
+$$
+\begin{aligned}
+& \frac{\partial f}{\partial t}(x,t) = \frac{1}{2}\Delta f (x,t), x \in B \\
+& u(t,x)=g(x), x \in \partial B \\
+& u(0,x)=f(x), x \in B \\
+\end{aligned}
+$$
+We can express the solution in terms of Brownian motion and the hitting time to the boundary $\tau= \inf \{t: X_t \in \partial B \}$
+namely 
+$$
+u(t,x) = E\left[ f(X_t) 1_{\{\tau >t\}}  + g(X_{\tau}) 1_{\{\tau \le t\}}\right]\,.
+$$
+This is derived in a similar way as before.   If we take $t \to \infty$ and say $B$ is bounded then the path will eventually hit $\partial B$ 
+and so taking $t \to \infty$ we find the equation
+$$
+\begin{aligned}
+& \Delta u (x,t)=0, x \in B \\
+& u(t,x)=g(x), x \in \partial B \\
+\end{aligned}
+$$
+whose solution is 
+$$
+E\left[ g(X_{\tau}) 1_{\{\tau \le t\}}\right].
+$$
+
+## Recurrence and transience of Brownian motion
+
+
++ In dimension $1$ let us consider the interval $[0,R]$ and the function $g$ on the boundary with $g(0)=0$ and $g(R)=1$. Then solution the 
+equation 
+$$
+u''(x)=0\, \quad \textrm{ with } \quad u(0)=0, u(1)=1
+$$ 
+is $u(x)=\frac{x}{R}$ and so 
+$$
+u(x)= P\{ X_t \textrm{ hits } R \textrm{ before hitting } 0| X_0=x\} = \frac{x}{R} 
+$$
+Not coincidentally this is the same as the gambler's ruin (with $p=\frac{1}{2}$). Therefore
+$$
+P\{ X_t \textrm{ hits } 0| X_0=x \} = \lim_{R \to \infty} P\{ X_t \textrm{ hits } 0 \textrm{ before hitting } R| X_o=x\} = \lim_{R \to \infty} \left(1- \frac{x}{R}\right) =1
+$$
+and so $X_t$ is recurrent in $d=1$.
+
+
+## {-} 
+
++ In dimension $2$ or higher let us consider the annulus domain 
+$$
+B= \{ x\in \mathbf{R}^d\,;\, R_1 \le \|x\| \le R_2 \} 
+$$ 
+with $0< R_1 < R_2 < \infty$ and boundary 
+$$
+\partial B =\{ x\in \mathbf{R}^d\,;\, \|x\|=R_1 \textrm{ or } \|x\|=R_2 \}. 
+$$
+and let 
+$$
+g(y) = \left\{ \begin{array}{cl} 1 & \textrm{ if } \|x\|=R_2  \\ 0 & \textrm{ if } \|x\|=R_1 \end{array} \right.
+$$  
+Then $u(x)=E[ g(x_{\tau})| X_o=x ]$ is the probability that $X_t$ hits $\{\|x\|=R_2\}$ before hiting the $\{\|x\|=R_1\}$ and 
+$u(x)$ solves 
+$$
+\Delta u(x) =0, x \in B \quad \textrm{ and } \quad u(y)=g(y), x \in \partial B\,.
+$$
+
+## {-}
+
+By symmetry the solution is a function of the form $u(x)=\phi(\|x\|)$ since Brownian motion is invariant under rotation:  in polar coordinates 
+the heat equation reads
+$$
+\Delta \phi(r)= \phi''(r) + \frac{d-1}{r} \phi'(r) =0 \,.
+$$
+This ODE is easy to solve and has the general solution 
+$$
+\phi(r) = \left\{ \begin{array}{cl} c_1 \ln(r) + c_2  & \textrm{ if } d=2  \\ c_1 r^{d-2} + c_2 & \textrm{ if } d\ge 3 \end{array} \right.
+$$
+With the boundary values $\phi(R_1)=0$ and $\phi(R_2)=0$ we find 
+$$
+\phi(r) = \left\{ \begin{array}{cl}  \frac{\ln(r)- \ln(R_1)}{\ln(R_2) - \ln(R_1)}   & \textrm{ if } d=2  \\  \frac{ R_1^{2-d} - \|x\|^{2-d}}{R_1^{2-d} - R_2^{2-d}} & \textrm{ if } d\ge 3 \end{array} \right.
+$$
+To study the recurrence we take $R_1=\epsilon$ and $R_2 \to \infty$ to find the probability that a Brownian path hits a small ball around $0$ starting from $x$. 
+
+## {-}
+For $d=2$ since 
+$$
+\lim_{R_2 \to \infty} P\left\{ \|X_t\|=R_2 \textrm { before } \|X\|_t=\epsilon|X_0=x\right\} = \lim_{R_2 \to \infty} \frac{\ln(r)- \ln(\epsilon)}{\ln(R_2) - \ln(\epsilon)} = 0
+$$
+That is $X_t$ returns to the disc $\|x\| \le \epsilon$ with probability $1$ for arbitrary $\epsilon$ and it is natural to call $X_t$ recurrent.   
+Note however that $X_t$ never returns exactly to $0$.  Indeed we have 
+$$
+\lim_{\epsilon \to 0} P\left\{ \|X_t\|=\epsilon \textrm { before } \|X\|_t=R_2| X_0=x \right\} = \lim_{\epsilon \to 0}\left( 1- \frac{\ln(r)- \ln(\epsilon)}{\ln(R_2) - \ln(\epsilon)}\right) = 0
+$$
+
+
+
+
+
+For $d\ge 3$, arguing similarly we find that  
+$$
+\lim_{R_2 \to \infty} P\{ \|X_t\|=R_2 \textrm { before } \|X\|_t=\epsilon\} = \lim_{R_2 \to \infty} \frac{ \epsilon^{2-d} - \|x\|^{2-d}}{\epsilon^{2-d} - R_2^{2-d}}  = 1 - \left(\frac{\epsilon}{\|x\|}\right)^{d-2} < 1 
+$$
+and so the Brownian motion does not return near zero with non-zero probbaility: $X_t$ is transient in dimension $3$ or more. 
+
+## Brownian motion with drift
+
+For a vector $\mu \in \mathbb{R}^d$ let us consider the [Brownian motion with drift $\mu$]{.red} is given by 
+$$
+Y_t = X_t + t\mu
+$$
+It is not too difficult to see that the following properties hold
+
+  + $Y_t$ has independent increments and $Y_t-Y_s$ ($s\le t$) has a normal distribution with mean $\mu(t-s)$ and covariance $\sigma^2(t-s)I$. 
+
+  + The transition probabilities are $p_t(x,y)= \frac{1}{(2\pi \sigma^2 t)^{d/2}} e^{- \frac{\|y-x-t\mu\|^2}{2\sigma^2 t}}$.
+
+  + The function $f(t,x)=E\left[ f(Y_t)\right]$ satisfies the partial differential equation
+  $$
+  \frac{\partial f}{\partial t} = \frac{1}{2}\Delta f + \mu \nabla f
+  $$ 

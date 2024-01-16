@@ -1,0 +1,567 @@
+
+
+We present the basic convergence theory for finite state Markov chains and introduce the concept of irreducubility and period of a Markov chain.  This is very classical stuff, see e.g. @Lawler2006 and @Peres2017. 
+
+
+## Existence of stationary distributions
+
+
+ We first show that stationary distributions always exist for finite state Markov chains. This will not be the case if the state space is countable.
+
+. . .
+
+
+:::{#thm-existencefinite} 
+Let $X_n$ be a Markov chain on a finite state space $S$. Then $X_n$ has at least one stationary distribution.
+:::
+
+. . .
+
+:::{.proof}
+
+Boltzano Weierstrass theorem asserts that any bounded sequences $\{\mathbf{x}_k\}$ in $\mathbb{R^d}$ has a convergence 
+subsequence.  
+
+Choose $\mu_0$ to be an arbitrary initial distribution and let $\mu_n = \mu P^n$.  Apply Boltzano Weierstrass to the sequence $\mu_n$ will not work but consider instead the time averages 
+$$
+\nu_n \,=\, \frac{\mu + \mu P + \cdots \mu P^{n-1}}{n} 
+$$
+The sequence $\nu_n$ is bounded since $\mu_n$ and $\nu_n$ are probability vector. Therefore there exists a convergent subsequence $\nu_{n_k}$ with $\nu_{n_k}=\pi$ and $\pi$ is a probability vector as well. We show that $\pi$ is a stationary distribution.  Note 
+$$
+\nu_n P - \nu_n \,=\, \frac{ \mu P + \cdots \mu P^{n} - \mu - \cdots -\mu P^{n-1}}{n} \,=\, 
+\frac{\mu P^n - \mu}{n}  \quad \textrm{ and thus } \quad   \left\vert \nu_n P(j)  - \nu_n(j) \right\vert \,\le \, \frac{1}{n}
+$$
+To conclude we note that
+$$
+| \pi P(j) - \pi(j)|  \,=\, \lim_{k \to \infty} | \nu_{n_k}P (j) - \nu_{n_k}(j) | \,\le\, \lim_{k \to \infty} \frac{1}{n_k} \,=\, 0 \,.
+$$
+and thus $\pi P = \pi$, that is $\pi$ is a stationary distribution.
+
+:::
+
+
+## Uniqueness of stationary distributions
+
++ It is easy to build examples of Markov chain with multiple stationary distributions.
+
+$$
+P \,=\, \left(  \begin{array}{cccc}  \frac{1}{2} & \frac{1}{2}  &  0 &  0  \\   \frac13 & \frac23 & 0 & 0 \\
+0  & 0 &  \frac16 & \frac56 \\
+0 & 0 & \frac45 & \frac15  \end{array} \right)  \quad \quad   \pi_1=\left( \frac35 , \frac 25 ,0,0\right) \textrm{ and }  \pi_2= \left( 0, 0 ,\frac{25}{49}, \frac{24}{49}\right) 
+ \quad \textrm{ are stationary}
+$$
+If the Markov chain starts in state $1$ or $2$ it will only visits states $1$ and $2$ in the future and so we can build a stationary distribution (by @thm-existencefinite using an initial $\mu_0$ which vanishes on $3$ and $4$ ) which will vanish on the state $3$ and $4$. 
+
+. . .
+
++ **Notations**: 
+
+   + We say that [$j$ is  accessible from $i$]{.red}, symbolically [$i \rightsquigarrow j$]{.red} if there exists $n\ge 0$ such that $P^n(i,j)>0$. 
+
+
+    + We say that <span class="red"> $i$ and $j$ communicate </span>, symbolically <span class="red"> $i \leftrightsquigarrow j$</span>  if $i \rightsquigarrow j$ and $j \rightsquigarrow i$.
+
+
+    + A Markov chain $X_n$ is <span class="red"> irreducible </span> if every state $i\in S$ communicate with every other state $j \in S$ that is for any pair of states $i,j$ in $S$ there exists $n$ such that $P^n(i,j) >0$.
+
+    In an irreducible Markov chain starting from any state you will eventually visit any other state.  
+
+
+## {-}
+
+:::{#thm-uniquenessfinite name="Uniqueness of stationary distributions"}
+
+Suppose $X_n$ is an irreducible Markov chain with finite state space $S$. 
+
+1. If $\pi$ is a stationary distribution then $\pi(j)>0$ for all $j\in S$, 
+
+2. Suppose $h$ is a column vector such that $Ph=h$ then $h=c(1,1,\cdots,1)^T$ is a constant vector.
+
+3. The Markov chain $X_n$ has a unique stationary distribution $\pi$. 
+
+:::
+
+:::{.proof}
+
+
+For 1. if $\pi$ is  stationary distribution then $\pi(i)>0$ for at least one $i$. If $j$ is such that $i \rightsquigarrow j$ then 
+there exists a time $r$ such that $P^r(i,j) >0$ and thus 
+$$
+\pi(j) =\pi P^r(j)\,=\, \sum_{k} \pi(k) P^r(k,j) \,\ge \, \pi(i) P^r(i,j) >0 \,.
+$$
+Since $X_n$ is irreducible,  $\pi(j)>0$ for any $j \in S$.
+
+For 2, suppose that $Ph=h$ and $i_0$ such that $h(i_0)= \max_{i\in S} h(i)\equiv M$.
+If $h$ is not a constant vector there exists $j$ with $i_0 \rightsquigarrow j$ but $h(j) < M$ and $P^r(i_0,j>0)>0$. 
+Since  $P^rh=h$,
+$$
+M= h(i_0) \,=\, P^r h(i_0) \,=\, P^r( i_0, j) \underbrace{h(j)}_{< M} + \sum_{l \not= i_0} P^n(i_0,l) \underbrace{h(l)}_{\le M} < M\sum_{l} P^(i_0,l)=M\,,
+$$
+and this is a contradiction. \qed
+
+For 3. part 2. shows that the geometric multiplicity of the eigenvalue $1$ matrix $P$ is equal to $1$ and thus so is the geometric multiplicity of the eigenvalue $1$ for the adjoint $P^T$ and thus $P$ has at most one left eigenvector $\pi$.
+
+:::
+
+## Convergence to stationary distribution
+
++ **Question**: If we have a unique stationary distribution is it correct that $\lim_{n \to \infty} \mu P^n = \pi$?   
+
++ Without further assumption the answer is NO, because of possible periodic behavior. Consider for example the random walk on 
+$\{1, \cdots, 2N\}$ with, for example, periodic boundary conditions.  The stationary distribution is uniform $\pi= \left(\frac{1}{2N}, \cdots, \frac{1}{2N}\right)$. But if $X_0$ is even then $X_1$ is odd and then alternating periodically between odd and even positions.   For example  for 
+
+$$
+P \,=\, \left(  \begin{array}{cccc}  0 & 1/4  &  0 &  3/4  \\   3/4 & 0 & 1/4 & 0 \\
+0  & 3/4 &  0 & 1/4  \\
+1/4 & 0 & 3/4 & 0  \end{array} \right)  \quad \quad   \pi = \left( \frac14,\frac14 ,\frac14,\frac14 \right) 
+ \textrm{ is stationary}
+$$
+and 
+
+$$
+P^{10}=\begin{pmatrix}
+0.4995 & 0 & 0.5004 & 0 \\
+0 & 0.4995 & 0 & 0.5004 \\
+0.5004 & 0 & 0.4995 & 0 \\
+0 & 0.5004 & 0 & 0.4995 \\
+\end{pmatrix}
+\quad \quad  
+P^{11}=
+\begin{pmatrix}
+0 & 0.5002 & 0 & 0.4997 \\
+0.4997 & 0 & 0.5002 & 0 \\
+0 & 0.4997 & 0 & 0.5002 \\
+0.5002 & 0 & 0.4997 & 0 \\
+\end{pmatrix}
+$$
+and $P^n(i,j)$ does not converge, oscillates, asymptotically between $0$, and $1/2$. 
+
+## {-}
+
++  A Markov chain $X_n$ is called <span class="red"> **irreducible and aperiodic**</span> if there exists an integer $n$ such that
+$P^n(i,j) > 0$ for all pair $i,j$ in $S$. (The  meaning of the terminology will become clearer later on.)
+
+:::{#thm-convMC name="Doeblin's Theorem"}
+Suppose $X_n$ be an irreducible and aperiodic Markov chain on the finite state space $S$ with
+stationary distribution $\pi$. There exists a constant $C>0$ and number $\alpha$ with $0\le \alpha< 1$ such that
+for any initial distribution $\mu$ we have
+$$
+|\mu P^n(j) - \pi(j)| \,\le\, C \alpha^n \,,
+$${#eq-expconv}
+i.e., the distribution of $X_n$ converges, exponentially fast, to $\pi$.
+:::
+
+:::{.proof}
+Since the Markov chain is irreducible and aperiodic we can find an integer $r$ such that $P^r$
+has strictly positive entries.  Let $\Pi$ be the stochastic matrix
+$$
+\Pi \,=\, \left( \begin{array}{cccc} \pi(1)& \pi(2)& \cdots& \pi(N) \\
+ \pi(1)& \pi(2)& \cdots& \pi(N) \\
+   \vdots&  \vdots & &\vdots
+\\
+\pi(1) &\pi(2)& \cdots& \pi(N)
+\end{array}
+\right)
+$$
+where every row is the stationary distribution $\pi$. Note that this corresponds to independent sampling
+from the stationary distribution.
+
+Since all elements of $P^r(i,j)$ are strictly positive we can pick $\delta >0$ sufficiently small such that for all $i,j$
+$$
+P^r(i,j) \,\ge \, \delta\,\Pi(i,j)=\delta \pi(j) \,.
+$${#eq-doeblin}
+
+:::
+
+## {-}
+
+  Let us set $\theta = 1-\delta$ and by @eq-doeblin we define a stochastic matrix $Q$ through the
+equation
+$$
+P^r = (1-\theta) \Pi + \theta Q \,.
+$$
+Note the following facts:
+
++  Since $\pi P = \pi$ we have $\Pi P^n = \Pi$ for any $n \ge 1$.
+
++  For any stochastic matrix $M$ we have $M \Pi = \Pi$ since all rows of $\Pi$ are identical.
+
+Using these two properties we show, by induction, that any integer $k\ge 1$, $P^{kr} \,=\, (1 - \theta^k) \Pi + \theta^k Q^k$.
+This is true for $k=1$ and so let us assume this to be true for $k$. We have 
+$$
+\begin{aligned} 
+P^{r(k+1)} = P^{rk} P^r &= \left[ (1 - \theta^k) \Pi + \theta^k Q^k \right] P^r   
+ =   (1 - \theta^k) \Pi P^r   + \theta^k Q^k  [(1-\theta) \Pi + \theta Q]  \\
+ &= (1 - \theta^k) \Pi  + \theta^k(1-\theta) \Pi +   \theta^{k+1} Q^{k+1} = (1 - \theta^{k+1}) \Pi  +    \theta^{k+1} Q^{k+1}
+\end{aligned}
+$$
+and this concludes the induction step.    
+
+From this we conclude that $P^{rk} \to \Pi$ as $k \to \infty$. We write any  integer $n$  as $n=k r +l$ where $0 \le l < r$.  We have then
+$$
+P^n =  P^{kr} P^l = [(1 - \theta^k) \Pi + \theta^k Q^k] P^l = \Pi + \theta^{k} \left[  Q^k P^l - \Pi \right]
+$$
+and thus
+$$  
+|P^n(i,j) - \pi(j)|  \,=\, \theta^k |Q^k P^l(i,j) - \Pi(i,j)| \le \theta^k  \le \frac{1}{\theta} (\theta^{1/r})^n  \equiv C\alpha^n \,.
+$$
+The same holds for any initial distribution multiplying by $\mu(i)$ and summing. 
+
+
+## The period of a Markov chain
+
+As we have seen before Markov chain can exhibit periodic behavior and circle around various part of the state space. 
+
++ The <span class="red"> period of state $j$, $\textrm{per}(j)$, </span> is the greatest common divisor of the set 
+$$
+{\mathcal T}(j) \,=\, \left\{ n\ge 1\,,\, P^n(j,j)>0 \right\}
+$$
+that is ${\mathcal T}(j)$ is set of all times at which the chain can return to $j$ with positive probability.   
+
+
+For example for random walks with periodic boundary conditions the period is 2 is the number of sites is even and 1 if the number of sites is odd. 
+
++ The set *${\mathcal T}(j)$ is closed under addition*: 
+$$
+n,m \in {\mathcal T}(j) \implies  m+n \in {\mathcal T}(j)
+$$
+which holds true since $P^{n+m}(j,j) \ge P^{n}(j,j)P^{m}(j,j)$. 
+
+
++ By definition if $\textrm{per}(j)=d$ then 
+$$
+{\mathcal T}(j) \subset \{ 0,d,2d, \cdots\}
+$$
+Since it is closed under addition a **fact from number theory** (see exercise) implies that there exists $k$ such that 
+$$
+\{ kd, (k+1)d, (k+2)d \cdots \} \subset  {\mathcal T}(j) \quad \textrm { or equivalently } \quad P^{nd}(j,j)>0  \textrm{ for all } n\ge k
+$$
+
+## {-}
+
+
+:::{#lem-period}
+If $i \leftrightsquigarrow j$ then $\textrm{per}(i)=\textrm{per}(j)$.
+:::
+
+:::{.proof} 
+Suppose $\textrm{per}(j)=d$ and $i \leftrightsquigarrow j$.  There exist integers $m$ and $m$ such that 
+$P^m(i,j)>0$ and  $P^n(j,i)>0$ and thus 
+$$
+P^{m+n}(i,i)>0 \textrm{ and }P^{m+n}(j,j)>0
+$$
+which means that  $m+n \in {\mathcal T}(i) \cap {\mathcal T}(j)$ and so $m+n=kd$ for some integer $k$.  
+
+Suppose $l \in {\mathcal T}(i)$ then 
+$$
+P^{n+m+l}(j,j) \ge P^n(j,i) P^l(i,i) P^m(i,j) > 0
+$$
+and $n+m+l \in {\mathcal T}(j)$.  Therefore $d$ divides $l$ since it divides both $n+m+l$ and $n+m$ and this shows that $\textrm{per}(j) \le  \textrm{per}(i)$. Reversing the roles of $i$ and $j$ we find  $\textrm{per}(j) =  \textrm{per}(i)$.   $\quad \blacksquare$
+
+:::
+
+
+**Consequences:**
+
++ If $X_n$ is irreducible then all states have the same period and we can define the <span class="red"> period of the irreducible Markov chain $X_n$ </span>. 
+
+
++ If $X_n$ is irreducible and has period 1 (also called aperiodic) and $S$ is finite then $P^{n}(i,j) >0$ for all suficiently large $n$ (compare with our earlier definition of irreducible and paeriodic).  
+
+
+## {-}
+
+
+Decomposing the state space $S = G_1 \cup G_2 \cup \cdots G_d$: 
+
+  + Start with a state $i\in S$ and let $i \in G_1$. 
+  
+  + For all $j$ such that $P(i,j)>0$ let $j \in G_2$.
+
+  + For all $j\in G_2$ and all $k$ such that $P(j,k)>0$ let $k\in G_3$. 
+  
+  + After assigning set to $G_d$ assign the next states to $G_1$. 
+  
+  + Repeat until all states have been assigned. If $|S|$ is finite this takes at most $|S|$ steps. 
+  
+  
+By construction since the period $j$ we get a partition of $S$ into $d$ distinct subsets $G_1, \cdots, G_d$ and 
+$$
+P(i,j)> 0  \implies i \in G_k \textrm{ and } j \in G_{k+1 (\textrm{mod} d)}
+$$
+For example 
+
+:::{.columns}
+
+:::{.column width=40%}
+
+$$
+P=
+\begin{matrix}
+1\\2\\3\\4\\5\\6\\7
+\end{matrix}
+\begin{pmatrix}
+0 & 0 & 0 & 1 & 0 & 0 & 0  \\
+0 & 0 & 0 & 0 & 0 & 0 & 1  \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & .2 & 0 & 0 & .8 & 0 \\
+.3 & .7 & 0 & 0 & 0 & 0 & 0  \\
+.2 & .8 & 0 & 0 & 0 & 0 & 1  \\
+0 & 0 & 0 & 0 & .7 & .3 & 0  \\
+\end{pmatrix}
+$$
+
+:::  
+
+
+:::{.column width=60%} 
+
+Iteratively we find 
+$$
+1 \rightsquigarrow 4 \rightsquigarrow 3,6 \rightsquigarrow 1,2  \rightsquigarrow 4,7 \rightsquigarrow 3,5,6  \rightsquigarrow 1,2 
+\rightsquigarrow 4,7 
+$$
+and thus the Markov chain is irreducible with period $3$ and so we have  
+$$
+S=\{1,2\} \cup \{4,7\} \cup \{3,5,6\}
+$$
+
+:::
+
+:::
+
+## {-}
+
+Relabeling the state the transition matrix $P$ takes the following block matrix form
+$$
+P\,=\, 
+\begin{matrix} 
+G_1 \\
+G_2 \\
+\vdots\\
+G_{d-1}\\
+G_d
+\end{matrix}
+\begin{pmatrix}
+0                      & P_{G_1 G_2} & 0                      & \cdots &0 \\
+0                     &             0           &P_{G_2 G_3} & \cdots &0 \\
+\vdots             &    \vdots           &                         &  \vdots & \vdots \\
+0                     &   0                     & \cdots                &    0     &P_{G_{d-1} G_d} \\
+P_{G_dG_1}&    0                    & \cdots                  &      0      & 0
+\end{pmatrix}
+$$
+
+where $P_{G_l G_{l+1}}$ describe the transition between states in $G_l$ and $G_{l+1}$. 
+
+Putting the matrix $P$ to the power $d$ we find the block diagonal form 
+$$
+P^d\,=\, 
+\begin{matrix} 
+G_1 \\
+G_2 \\
+\vdots\\
+G_d
+\end{matrix}
+\begin{pmatrix}
+Q_{G_1}              &     0          &       0             & \cdots &0 \\
+0                  &     Q_{G_2}      &       0               & \cdots & 0 \\
+\vdots         &    \vdots     &                    &      &    \vdots \\
+0                 &   0               & \cdots         &   0   &    Q_{G_d}
+\end{pmatrix}
+$$
+
+:::{#thm-convergenceperiodic} 
+If $X_n$ is an irreducible Markov chain on a finite state space with stationary distribution $\pi$  then we have 
+$$
+\lim_{n \to \infty} \frac{1}{n} \sum_{k=0}^{n-1}  P^k(i,j) \,=\, \pi(j) \,.
+$$
+:::
+## {-}
+
+:::{.proof}  
+
+The matrix $Q_{G_l}$, restricted to state space $G_l$ governs the evolution of an irreducible aperiodic Markov chain
+and thus, by @thm-convMC, we have 
+$$
+\lim_{n \to \infty} P^{nd}(i,j)  \,=\,\lim_{n \to \infty} Q^n_{G_l}(i,j)  =  \pi_{G_l}(j)\,\quad   \textrm{ for } i \in G_l, j \in G_l
+$$
+where $\pi_{G_l}$ is the stationary distribution for $Q_{G_l}$. Morever $P^{l}(i,j)=0$ if $l\not=nd$ for some $n$. 
+
+
+If $i \in G_{l-1}$ and $j \in G_{l}$ then 
+$$
+\lim_{n \to \infty} P^{nd+1}(i,j)  \,=\, \lim_{n\to \infty} \sum_{k \in G_{l}} P(ik) P^{nd}(k,j) \,=\, \sum_{k \in G_{l}} P(ik) \pi_{G_l}(j) \,=\,
+ \pi_{G_l}(j)\,,
+$$
+and $P^{m}(i,j)=0$ if $m\not=nd+1$ for some $n$. 
+Similarly if $i \in G_{l-r}$ and $j \in G_{l}$ we have
+$$
+\lim_{n \to \infty} P^{nd+r}(i,j)  \,=\,  \pi_{G_l}(j)\,.
+$$
+and $P^{m}(i,j)=0$ if $m\not=nd+r$ for some $n$. 
+
+
+The sequence $P^n(i,j)$ is asymptotically periodic where $d-1$ successive $0$ alternates with a number converging to $\pi_{G_l}(j)$ and thus if we define  $\pi \equiv \frac{1}{d} ( \pi_{G_1}, \cdots, \pi_{G_d})$
+then $\pi$ is normalized, stationary and 
+$$
+\lim_{n \to \infty} \frac{1}{n} \sum_{k=1}^n P^k(i,j) \,=\, \pi(k)
+$$
+since the time spend in state $j$ is asymptotically  equal to $\frac{1}{d}  \pi_{G_l}(j)$.
+
+:::
+
+
+
+## Hitting and return times
+
+We now have good understanding the asymptotic behavior of $P^n(i,j)$ or $\mu P^n$ as $n \to \infty$. When simulating or observing 
+a Markov chain  we usually observe a single sequence 
+$$
+X_0, X_1, X_2, \cdots
+$$
+and our next goal is to derive a **law large numbers** for this sequence of random variables.  To do this it will be useful to track how often the Markov chain visits some state. 
+
+. . .
+
+
+**Notations**: 
+
++ <span class="red"> Hitting time for the state $j$, $\sigma(j)$, </span> is the first time the Markov chain visits the state $j$.
+$$
+\sigma(j) = \inf\{ n \ge 0\,;\,  X_n=j \} \quad \textrm{hitting time }
+$$
+
+. . .
+
++ <span class="red"> Return time for the state $j$, $\tau(j)$, </span> is the first time the Markov chain returns to the state $j$.
+$$
+\tau(j) = \inf\{ n \ge 1\,;\,  X_n=j \} \quad \textrm{return time }
+$$
+
+
+Hitting time and return are closely related and are distinct only from the way they consider what happen at time $0$ (both are useful later on).  They are example of stopping time  and have the crucial property that to decide the events  $\tau(j)=k$ only depends on $X_0, \cdots X_k$.  In particular we have the **strong Markov property**
+$$
+P( X_{\tau(j)+1}=l| \tau(j)=k, X_0=i_0, \cdots, X_k=i_k) = P( X_1=l| X_k=j)
+$$
+which means that the Markov chains starts afresh after the random return time. 
+
+
+## {-}
+
+
+Irreducibility means that starting from $i$ the Markov chain will reach $j$ and thus for any $i$ we have 
+$$
+P\{\tau(j) <\infty |X_0=i\} >0  
+$$
+If the state space is finite then we have something much stronger. Not only we have  $P\{\tau(j) <\infty |X_0=i\} =1$, the expectation of $\tau(j)$ is actually finite.
+
+
+. . . 
+
+
+:::{#lem-esigma} 
+For an irreducible Markov chain on the finite state space $S$ the expected return time $E[\sigma(j)|X_0=i] < \infty$
+:::
+
+. . .
+
+:::{.proof}
+By irreducbility the Markov chain can reach the state $j$ from any state $i$ in a finite time. Since $S$ is finite this time is uniformly bounded.  So there exist a time $m$ and $\varepsilon>0$ such that $P^l(i,j)\ge \epsilon$ for some $l \le m$ uniformly in $i \in S$. Using the strong Markov property 
+this implies that 
+$$
+P\{\sigma(j) > k m|X_0=i\} \le (1-\varepsilon) P \{ \sigma(j) > (k-1) m |X_0=i\}\le \cdots \le (1-\varepsilon)^k
+$$
+
+Therefore, using that $P\{\sigma(j) > n|X_0=i\}$ is a decreasing function of $n$
+$$
+E[\sigma(j)|X_0=i] = \sum_{n \ge 0} P\{\sigma(j) > n|X_0=i\} \le m \sum_{k \ge 0} P\{\sigma(j) > km|X_0=i\}\le m \sum_{k \ge 0}
+(1-\varepsilon)^k < \infty \quad \blacksquare
+$$
+:::
+
+
++  Note that if $S$ is infinite this is not necessarily true and this will lead to the concepts of transience, recurrence and positive recurrence. 
+
+
+##  Strong law of large numbers for Markov chains
+
+
+We will also need the random variable <span class="red"> $Y_n(j)$ which counts the number of visits to starte $j$ up to time $n$ </span> that is 
+$$
+Y_n(j) \equiv \sum_{k=0}^{n-1} \mathbf{1}_{\{X_k=j\}} \quad = \textrm{ the number of visits to the state } j \textrm{ up to  time } n
+$$
+
+Since  $E \left[  \mathbf{1}_{\{X_k=j\}} \vert X_0=i \right] =P^k(i,j)$ and we have 
+$$
+\frac{1}{n}E[Y_n(j)\vert X_0=i]= \frac{1}{n}\sum_{k=0}^{n-1} P^k(i,j)
+$$ 
+and thus by @thm-convMC or @thm-convergenceperiodic 
+$$
+\pi(j) \,=\, \lim_{n\to \infty} \frac{1}{n}E\left[  \sum_{k=1}^{n} {\bf 1}_{\{X_k=j\}} \right] \quad = \textrm{ the proportion of time  spent in state } j \textrm{ in the long run }
+$$
+This is an important intuition
+
+$$
+\pi(j) = \textrm{expected fraction of time that the Markov chain spends in  state } j \textrm{ in the long run}.
+$$
+The next results strengthen that intepretation. 
+
+## {-}
+
+
+:::{#thm-ergMC name="Ergodic Theorem for Markov chain"}
+
+Let $X_n$ be an irreducible aperiodic Markov chain with arbitrary initial condition $\mu$, then,
+with probability $1$ we have
+$$
+\lim_{n \to \infty} \frac{1}{n}  \sum_{k=0}^{n-1} {\bf 1}_{\{X_n=j\}}  \,=\, \pi(j) \,,
+$$
+this is the *ergodic theorem* for Markov chain.
+
+Moreover if $\tau(j)$ is the first return time to $j$ we have the *Kac's formula*
+$$
+\pi(j) \,=\, \frac{1}{E[\tau(j)|X_0=j]} \,.
+$$
+:::
+
+. . .
+
+:::{.proof} 
+For a Markov chain starting in some state $i$ consider the successive return to the state $j$.  By the strong Markov property, one the Markov chain has reached $j$ it starts a fresh. So the time when the Markov chain returns to state $j$ for the $k^{th}$ time is 
+$$
+T_k(j)\,=\, \tau_1(j) + \cdots+  \tau_k(j) \,,
+$$
+where $\tau_l(j)$ are independent copies of the return times $\tau(j)$.  For $l\ge 2$  $\tau_l^{(j)}$ is
+conditioned on starting at $j$ while for $l=1$ it depends on the initial condition.
+Note that by the strong LLN for IID random variables we have
+$$
+\lim_{k\to \infty}\frac{T_k(j)}{k}\,=\, \lim_{k \to \infty} \frac{1}{k} \left( \tau_1(j) + \cdots+  \tau_k(j) \right) \,=\, E[\tau(j)|X_0=j] \,.
+$$
+:::
+
+
+## {-}
+
+Note further that if the total number of visits to state $j$ up to time is $k$, it means that that we have returned exactyl $k$ times and so 
+$$
+\left\{ Y_n(j)=k \right\} =\left\{ T_{k}(j) \le n  <   T_{k+1}(j) \right\}
+$$
+So we have 
+$$
+\frac{ T_{Y_n(j)}(j) } {Y_n(j)} < \frac{n}{Y_n(j)} \le \frac{T_{Y_n(j)+1}(j)}{Y_n(j)+1} \frac{Y_n(j)+1}{ Y_n(j)}
+$$
+As $n \to \infty$  $Y_n(j) \to \infty$ too and taking $n \to \infty$ both extremes of the inequality converge to $E[\tau(j) \vert X_0=j]$ with probability $1$ and thus we conclude that, with probability $1$,
+$$
+\lim_{n \to \infty} \frac{Y_n(j)}{n}  \,=\, \frac{1}{E[\tau(j)|X_0=j]} \,.
+$$
+On the other hand we know that
+$$
+\lim_{n \to \infty} \frac{E[Y_n(j)]}{n} \,=\, \pi(j)  \,,
+$$
+and thus
+$$
+\pi(j) \,=\, \frac{1}{E[\tau(j)|X_0=j]} \,.
+$$
+Putting all the pieces together gives the theorem.  $\quad \blacksquare$.
+
+

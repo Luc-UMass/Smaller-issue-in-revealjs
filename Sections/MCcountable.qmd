@@ -1,0 +1,422 @@
+
+## Examples 
+
+We introduce some basic examples of Markov chains on a countable state space
+
+
+:::{#exm-RWonN name="Random walk on the non-negative integers" }
+Let us consider a random walk on the set of nonnegative integers with partially reflecting boundary conditions at $0$. 
+The transition probabilities are given by
+$$
+\begin{matrix}
+0 \\ 1 \\ 2 \\ \vdots
+\end{matrix}
+\begin{pmatrix}
+ q  & p        & 0         &0         & 0 &\ldots  \\
+ q & 0         &  p       &0         & 0 &\ldots  \\
+ 0 & q         & 0        & p        &   0&   \ldots        \\
+\vdots   & \vdots & \ddots & \ddots & \ddots& \\
+\end{pmatrix}
+\quad \quad \textrm{ with } q=1-p
+$$
+
+:::
+
+:::{#exm-discretequeue  name="Discrete-time queueing model"}  
+At a service station (think of a cash register), during each time period there is a probability $p$ that an additional customer
+comes in the queue. The first person in the queue is being served and during each time period there is a probability $q$
+that this person exits the queue.
+
+We denote by $X_n$ the number of people in the queue (either in being served or waiting in line).  The state
+space is $S = \{ 0,1,2,3, \cdots \}$ and  the transition probabilities are given by
+$$
+P\,=\,
+\begin{matrix}
+0\\1\\2\\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+ 1-p  & p       & 0         &0         & \ldots  \\
+q(1-p) & qp + (1-p)(1-q)         &  p(1-q)       &0         & \ldots  \\
+ 0 & q(1-p)         &  qp + (1-p)(1-q)   & p(1-q)        &             \\
+\vdots& \vdots   & \ddots & \ddots & \ddots &  \\
+\end{pmatrix}
+$$
+
+:::
+
+## {-}
+
+:::{#exm-repairshop name="Repair shop"}
+
+A repair shop is able to repair one item on any single day.  On day $n$
+$Z_n$ items break down and are brought for repair to the repair shop and we assume that $Z_n$ are IID random variables
+with pdf  $P\{ Z_n = k\} = a_k$ for $k=0,1,2, \cdots$.  If $X_n$ denotes the number of item in the shop waiting to be repaired we have
+$$
+X_{n+1} =  \max \{ (X_n -1), 0 \} + Z_n
+$$
+The state space is  $S = \{ 0,1,2,3, \cdots \}$ and the transition probabilities are
+$$
+P\,=\,
+\begin{matrix}
+0\\1\\2 \\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+ a_0  & a_1 & a_2  & a_3  & \cdots  \\
+ a_0 & a_1  & a_2   & a_3  & \cdots  \\
+ 0    & a_0 & a_1    & a_2  & \cdots    \\
+\vdots   & \vdots & \vdots  & \vdots &  
+\end{pmatrix}
+\quad \quad 
+\textrm{ with } \sum_{k=0}^\infty a_k =1
+$$
+
+::: 
+
+
+:::{#exm-successrun name="Success run chain"}
+Imagine a player taking a series of bets labelled $0,1,2, \cdots$. The probability to win  bet $j$ is $p_j$.
+If the player wins bet $j$ they move up to bet $j+1$ but if they lose they  move back to bet $0$. 
+If $X_n$ denotes the number of successive winning bets then $X_n$ has state space $S = \{ 0,1,2,3, \cdots \}$ and transition probabilities
+$$
+P\,=\,
+\begin{matrix}
+0\\1\\2 \\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+ q_0  & p_0       & 0         &0         & \ldots  \\
+ q_1 & 0    &  p_1       &0         & \ldots  \\
+ q_2 & 0         & 0     & p_2        &             \\
+\vdots   & \vdots &   & \ddots & \ddots \\
+\end{pmatrix}
+\quad \quad \textrm{ with } q_i=1-p_i
+$$
+This Markov chain has allows for nice analytical computations.
+:::
+
+## {-}
+
+
+:::{#exm-SRW name="Simple d-dimensional random walk"}
+The state space $S$ of the Markov chain is the d-dimensional lattice $\mathbb{Z}^d$.  We denote by ${\bf e}_i$, $i=1, \cdots, d$
+the standard orthonormal basis in $\mathbb{R}^d$.  We view  $\mathbb{Z}^d$ as the vertex set of a graph and
+any point ${\bf x=(x_1, \cdots, x_d)}$ is connected by edges to $2d$ neighbors ${\bf x} \pm {\bf e}_i$.  For the simple
+random walk we have
+$$
+p({\bf x}, {\bf x} \pm  {\bf e}_i) \,=\, \frac{1}{2d}
+$$
+and all the others $p({\bf x},{\bf y})=0$.
+
+:::
+
+:::{#exm-branching name="Branching process"}
+The  branching process, also known as the {\bf \em Galton-Watson process} model the evolution over time of populations.  
+In a unit of time every individual in a population dies and leave behind a random number of descendents.  
+To describe the Markov chain we will use IID random variables $Z_n^{(k)}$ indexed by $n=0,1,2\cdots $ and $k=0,1,2,\cdots$.   
+The branching process is given by 
+$$
+X_{n+1} \,=\,  \sum_{k=1}^{X_n}  Z_n^{(k)}
+$$
+which simply says  that the each of $X_n$ individuals in the population at time $n$  has a random number $ Z_n^{(k)}$ of
+descendents.  It is not convenient to write down the transition probabilities but we will study this process later using
+its moment generating function.
+:::
+
+
+
+
+## Transience/recurrence dichotomy
+
++ In Markov chains on a countable state space a new phenomenon occurs compared to finite state space. Suppose the the Markov chain is irreducible (or starts in a closed class), from a state $i$ the Markov chain will return to $i$ with positive probaility but it is also possible that the Markov chain does not return to $i$ and "wander away to infinity". 
+
+We introduce the corresponding definitions of transience and recurrence of a state. Recall that the return time to state $i$ is given by  
+$$
+\tau(i) = \min \{ n \ge 1 \,;\, X_n =i \}\,.
+$$
+
+
+
++ A [**state $i$ is recurrent**]{.red} if if the Markov chain starting in $i$ will eventually return to $i$ with probability $1$, i.e. if
+$$
+P \left\{ \tau(i) < \infty |X_0=i \right\} =  1 .
+$$
+
++ \item A [**state $i$ is transient**]{.red} if it is not recurrent, that is starting in $i$ the Markov chain return to $i$ with probability $q<1$, i.e., if
+$$
+P \left\{ \tau(i)< \infty |X_0=i \right\} =  q < 1 .
+$$
+
+
+Recall also  the random variable $Y(i)$ which counts the number of visits to state $j$:
+$$
+Y(i) = \sum_{k=0}^\infty I_{\{X_k=i\}} \quad \textrm{ with expectation }  E[Y(i)|X_0=j] = \sum_{n=0}^\infty P^n(j,i)
+$$
+
+## {-}
+
+:::{#thm-transiencerecurrence name="Transience/recurrence dichotomy"}
+
+1. A state $i$  is recurrent $\displaystyle \iff P\{ Y(i)=\infty | X_0=i \}=1 \iff \sum_{n=0}^\infty P^{n}(i,i) =  \infty$.  
+   Moreover if $i$ is recurrent and $i \leftrightsquigarrow j$ then $j$ is recurrent and we have 
+   $$
+   \sum_{n=0}^\infty P^n(i,j) = \infty
+   $$ 
+   and 
+   $$
+   P \left\{ \tau(j) < \infty |X_0= i \right\} =  1
+   $$
+
+2. The state $i$ is transient $\displaystyle \iff P\{ Y(i)<\infty | X_0=i \} =1 \iff \sum_{n=0}^\infty P^{n}(i,i) <  \infty$
+   Moreover if $i$ is transient and $i \leftrightsquigarrow j$ then $j$ is transient and we have 
+   $$
+   \sum_{n=0}^\infty P^n(i,j) < \infty
+   $$ 
+   and 
+   $$
+   P \left\{ \tau(j) < \infty |X_0= i \right\} <  1\,.
+   $$
+
+
+:::
+   
+
+
+## {-}
+
+
+
+
+:::{.proof}
+
+If $i$ is recurrent the Markov chain starting from $i$  will return to $i$ with probability $1$, and then by the Markov property
+will return a second time with probability $1$ and therefore infinitely many time with probability $1$. This means that $Y(i)=\infty$ 
+almost surely and so $\sum_{k} P^{k}(i,i) = + \infty$.
+
+If $i \leftrightsquigarrow j$ then then we can find time $l$ and $m$ such that $P^l(i,j)>0$ and $P^m(j,i)>0$ and so
+$$
+ \sum_{n=0}^\infty P^{n}(j,j) \ge \sum_{n=0}^\infty P^{n+l+m}(j,j) \ge P^m(j,i) \sum_{n=0}^\infty P^n(i,i) P^l(i,j) = \infty\,,
+$$
+
+and $j$ is recurrent. A similar argument shows that $\sum_{n=0}^\infty P^n(i,j) = \infty$. 
+
+It is a consequence of irreducibility  that $P \left\{\tau(i) <  \tau(j)  |X_0= j \right\} > 0$. (Argue by contraduction, if this probability were $0$ by the Markov property, the chain would never visits $i$ starting from $j$).  As a consequence
+$$
+0\,=\, P \left\{ \tau(j)  = \infty |X_0= j \right\} \,\ge\, P \left\{ \tau(i)<  \tau(j) |X_0= j \right\}
+P \left\{ \tau(j) = \infty |X_0= i \right\}
+$$
+and therefore $P \left\{ \tau(j) < \infty |X_0= i \right\} =1$.  
+
+On the other hand, if $i$ is transient, by the Markov property again, the random variable $Y(i)$ is a geometric random variable with 
+success probability $q<1$ which implies that $E[Y(i)]=\sum_{k} P^{k}(i,i) = \frac{1}{q} <\infty$. This implies all the other equivalence stated. $\quad \blacksquare$
+
+:::
+
+
+## Transience/recurrence for the simple random walk.
+
+We analyze the  recurence and transience propeties  for the simple random walk on $\mathbb{Z}^d$ (see @exm-SRW).  
+As we will see this depends on the dimension. To prove recurrence transience here we compute/estimate directly 
+$$ 
+\sum_{n=0}^\infty P^n(0,0) = \sum_{n=0}^\infty  P^{2n}(0,0)
+$$
+since $X_n$ is periodic with period $2$. 
+
++ **$d=1$**: To return to $0$ in $2n$ steps the Markov chain must take exactly  $n$ steps to the left and $n$ steps to the right and thus we have
+  $$
+  P^{2n}(0,0) =   {2n \choose n}  \frac{1}{2^{2n}}
+  $$
+  By Stirling's formula we have $n! \sim \sqrt{2 \pi n}e^{-n} n^n$  where $a_n \sim b_n$ means that $\lim a_n/b_n =1$.  Thus we have
+  $$
+  {2n \choose n}  \frac{1}{2^{2n}}   \sim  \frac{1}{2^{2n}} \frac{ \sqrt{2 \pi 2n} e^{-2n} (2n)^{2n}} { 2 \pi n e^{-2n} n^{2n}} =         \frac{1}{\sqrt{\pi n}}\,.
+  $$  
+  Recalling that if $a_n \sim b_n$ then $\sum a_n$ converges if and only if $\sum b_n$ converges we see that **the random walk in $d=1$ is  recurrent**.
+
+
+## {-}
+
++ **$d=2$**: In dimension $2$ to return to $0$ in $2n$ steps the Markov chain must take exactly $k$ steps to the left and $k$ steps to the right and $n-k$ steps up and $n-k$ steps down.  Therefore
+$$
+P^{2n}(0,0) =   \sum_{k=0}^n \frac{ 2n!}{ k! k! (n-k)! (n-k)!}  \frac{1}{4^{2n}} = \frac{1}{4^{2n}} {2n \choose n}  \sum_{k=0}^n {n \choose k} {n \choose n-k}
+$$
+Now we claim that $\sum_{k=0}^n {n \choose k} {n \choose n-k}=  {2n \choose n}$ as can be seen by the counting the number of ways that a team of $n$ can be formed out of $n$ boys and $n$ girls.  Therefore
+$$
+P^{2n}(0,0) = {2n \choose n}^2  \frac{1}{4^{2n}} \sim  \frac{1}{\pi n}
+$$
+and thus the simple random walk is recurrent for $d=2$ since $\sum\frac{1}{n}$ diverges.
+
++ **$d=3$**: Similarly as in 2 dimension 2 we find 
+$$
+P^{2n}(0,0) =   \sum_{k,j : k+j \le n} \frac{ 2n!}{ j! j! k! k! (n-k-j)! (n-k-j)!}  \frac{1}{6^{2n}}   
+= \frac{1}{2^{2n}} {2n \choose n}   \sum_{k,j : k+j \le n}   \left(  \frac{1}{3^n} \frac{n!}{j! k! (n-j-k)!}   \right)^2
+$$
+To analyze this quantity we note that, by the multinomial theorem,  
+$$
+\sum_{k,j : k+j \le n}  \frac{1}{3^n} \frac{n!}{j! k! (n-j-k)!}  =1
+$$
+
+## {-}
+
+Moreover we have 
+$$
+\sum_{i} q_i =1 \implies  \sum_{i}q_i^2 \le max_{i} q_i
+$$
+and thus we only need to the maximum of $\displaystyle \frac{n!}{j! k! (n-j-k)!}$.  If $k_0,j_0$ is the maximum then we must have for example 
+$$
+\frac{n!}{(j_0-1)! k_0! (n-j_0-k_0+1)!} \le \frac{n!}{(j_0)! k_0! (n-j_0-k_0)!} \implies 2j_0 \le n -k_0 +1 \,.
+$$
+Repeating the same computation with $j_0\to j_0+1$, $k_0\to k_0-1$, $k_0 \to k_0+1$ gives the set of inequalities
+$$
+n- j_0 -1 \le 2 k_0 \le n- j_0 +1 \, \quad \textrm{ and } \quad  n- k_0 -1 \le 2 j_0 \le n- k_0 +1
+$$
+which implies that 
+$$
+\frac n3 -1 \le j_0, k_0 \le \frac n3 +1
+$$
+i.e. $j_0$ and $k_0$ are of order $n/3$. Using Stirling's formula
+$$
+P^{2n}(0,0) \le  \frac{1}{2^{2n}} {2n \choose n} \frac{1}{3^n} \frac{n!}{ (n/3)! (n/3)! (n/3)! } \sim \frac{3 \sqrt{3}}{2} \frac{1}{ (\pi n)^{3/2}}
+$$
+which shows that the random walk is transient in dimension $3$.
+
+
+## Transience/recurrence for the succcess run chain
+
+
+Continuing with @exm-successrun we consider the return time to state $0$, $\tau(0)$ whose pdf  we cab compute explicitly its p.d.f since to return to $0$ the only possible paths are $0 \rightarrow 0$, $0 \rightarrow 1 \rightarrow 0$,
+ $0 \rightarrow 1 \rightarrow 2 \rightarrow 0$, and so on.  We set $u_n \equiv p_0p_1 \cdots p_{n-1}$ and find 
+ $$
+ P( \tau(0) = k|X_0=0) = p_0 p_1 p_{k-2}q_{k-1}= p_0 p_1 p_{k-2}(1-p_{k-1}) = u_{k-1} - u_k\,.
+ $$
+Therefore
+$$
+P( \tau(0) \le n |X_0=0) = \sum_{k=1}^n  P( \tau(0) = k|X_0=0) =  (1- u_0) + (u_0-u_1) + \cdots + (u_{n-1} - u_n) = 1 - u_n
+$$
+and
+$$
+P( \tau(0) < \infty|X_0=0) =   1 - \lim_{n\to \infty} u_n
+$$
+and we obtain that
+$$
+  \textrm{The success run chain is recurrent if and only if } \lim_{n \to \infty} u_n  = \lim_{n \to \infty} p_0 \cdots p_{n-1} =0
+$$
+To have a better handle on this criterion we need a little result from analysis about infinite products.
+
+
+## {-}
+
+:::{#lem-sumproduct} 
+With $q_k=1-p_k$ and $u_n= \prod_{k=0}^{n-1} u_k$ 
+
+$$
+\lim_{n \to \infty} u_n= \lim_{n\to \infty} \prod_{k=0}^{n-1} p_k  = 0  \iff \sum_{k=0}^\infty {q_k} =  \infty  
+$$
+$$
+\lim_{n \to \infty} u_n= \lim_{n\to \infty} \prod_{k=0}^{n-1} p_k  > 0 \iff \sum_{k=0}^\infty {q_k} <  \infty 
+$$
+
+:::
+
+
+:::{.proof} 
+We have  
+$\displaystyle \prod_{k=0}^{n-1} p_k  > 0 \iff \infty > - \log  (\prod_{k=0}^{n-1} p_k ) =- \sum_{k=1}^n \log p_k = - \sum_{k=1}^n \log (1-q_k)$
+Taking $n \to \infty$ shows that
+$$
+\lim_{n\to \infty} \prod_{k=0}^{n-1} p_k  > 0 \iff   \sum_{k=1}^\infty \log (1-q_k) \textrm{ converges.}
+$$
+For this to happen we must have $\lim_{k \to \infty} q_k =0$. But since $\lim_{x \to 0} \log(1-x)/x =1$ by L'Hospital rule, we have that $\sum_{k=1}^n \log (1-q_k)$ converges if and only if $\sum_{k=1}^n  q_k$ converges.  $\quad \blacksquare$
+
+:::
+
+
+For the chain to be transient $q_k$ must go to $0$ fast enough. If say $q_i= \frac{1}{i}$ then the chain is recurrent while if  $q_i= \frac{1}{i^2}$ then it is transient. 
+
+
+
+##  Another criterion for transience
+
+
+We add one more method to establish transience.  For this pick reference state $j$ and consider
+the hitting time to state $j$, $\sigma(j)$ (not the return time but we will play with both.)
+$$
+\alpha(i)\,=\, P \left\{ \sigma(j)< \infty  | X_0= i \right\}
+$$
+By definition we have $\alpha(j)=1$ since $\sigma(j)=0$ if $X_{0} = j$. If the chain is transient we must have
+$$
+\alpha(i) < 1  \quad \textrm { for } i \not= j \,.
+$$
+since by  @thm-transiencerecurrence  for $i \not=j_0$ we have $\alpha(i)=  P \left\{ \tau(j) < \infty |X_0= i \right\} < 1$.
+
+Let us derive an equation for $\alpha(i)$ by conditioning of the first step.  For $i \not=j$
+$$
+\begin{aligned}
+\alpha(i) &=    P \left( \sigma(j) < \infty | X_0= i \right) = P \left( \tau(j) < \infty | X_0= i \right)  \\
+&=  \sum_{k \in S}  P \left( \tau(j) < \infty |  X_1=k \right)  P(i,k) =  \sum_{k \in S}  P \left( \sigma(j)< \infty |  X_0=k \right)  P(i,k)  \\
+&=  \sum_{k \in S}  P(i,k) \alpha(k)
+\end{aligned}
+$$
+and thus $\alpha(i)$ satisfies the equation
+$$
+P\alpha(i) = \alpha(i)  \,, \quad i \not= j \,.
+$$
+
+
+## {-}
+
+:::{#thm-criteriontransience name="A criterion for transience" }
+An irreducible Markov chain $X_n$ is transient if and only if for some state $j_0$ there exists a solution for the equation
+$$
+P\alpha(i) = \alpha(i)  \textrm { for } i \not= j_0
+$${#eq-tr1}
+such that 
+$$
+\alpha(j_0)=1  \quad \textrm { and } \quad  0 < \alpha(i) < 1 \quad \textrm { for } i \not= j_0
+$${#eq-tr2}
+:::
+
+:::{.proof }  
+We have already established the necessity.  In order to show the sufficiency assume that we have found a solution for @eq-tr1 and @eq-tr2.
+Then for $i \not= j_0$ we have, using repeatedly the equation $P\alpha(i)=\alpha(i)$
+$$
+\begin{aligned}
+1 &> \alpha(i) = P\alpha(i)  = P(i, j_0) \alpha(j_0)  + \sum_{j \not= j_0} P(i, j) \alpha(j) =  P(i, j_0)   + \sum_{j \not= j_0} P(i, j)  P\alpha(j) \\
+&= P(i, j_0)   + \sum_{j \not= j_0} P(i, j)  P(j,j_0) + \sum_{j \not= j_0, k \not= j_0} P(i, j) P(j,k) \alpha(k) \\
+&= P(i, j_0)   + \sum_{j \not= j_0} P(i, j)  P(j,j_0) +  \sum_{j,k \not= j_0}  P(i, j)  P(j,k) P(k,j_0) + \cdots \\
+&= P(\tau(j_0)=1|X_0=i)  + P(\tau(j_0)=2|X_0=i) + P(\tau(j_0)=3|X_0=i) + \cdots \\
+&= P(\tau(j_0)< \infty|X_0=i)\,.
+\end{aligned}
+$$
+which establishes transience.   $\quad \blacksquare$
+
+:::
+
+## Transience/recurrence for the RW on $\{0,1,2,\}$
+
+
++ Continuing with @exm-RWonN  we use @thm-criteriontransience.  We pick $0$ as the reference state and for $j \not=0$ solve the equation
+$$
+P\alpha(j) =  P(j, j-1) \alpha(j-1) + P(j, j+1) \alpha(j+1)  =  (1-p) \alpha(j-1) + p \alpha(j+1) = \alpha(j)
+$$
+whose solution is (like for the Gambler's ruin problem)
+$$
+\alpha(j) = \left\{ \begin{array}{cl}  C_1 + C_2 \left( \frac{1-p}{p}\right)^j  & \textrm{ if } p \not= \frac{1}{2} \\
+C_1 + C_2 j &  \textrm{ if } p = \frac{1}{2}
+\end{array}
+\right.  \,.
+$$
+Using that $\alpha(0)=0$ we find
+$$
+\alpha(j) = \left\{ \begin{array}{cl}  (1-C_2) + C_2 \left( \frac{1-p}{p}\right)^j  & \textrm{ if } p \not= \frac{1}{2} \\
+(1-C_2) + C_2 j &  \textrm{ if } p = \frac{1}{2}
+\end{array}
+\right. \,.
+$$
+and we see the condition $0 < \alpha(i) < 1$ is possible only if $(1-p)/p < 1$ (that is $p > 1/2$) and by choosing $C_2=1$.  Thus we conclude
+$$
+\textrm{ The random walk on } \{0,1,2, \cdots\} \textrm{ is } \left\{ \begin{array}{l} \textrm{transient for } p> \frac{1}{2} \\
+  \textrm{recurrent for } p \le \frac{1}{2}
+  \end{array}
+  \right.    \,.
+$$
+
+
+

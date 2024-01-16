@@ -1,0 +1,171 @@
+
+
+
+## Balance equation
+
+Consider a Markov chain with transition probabilities $P(i,j)$ and stationary distribution
+$\pi(i)$. We can rewrite the equation for stationarity, 
+$$
+\pi(i)=\sum_{j} \pi(j) P(j,i)
+$$
+as  
+$$
+\sum_{j}  \pi(i) P(i,j)  \,=\, \sum_{j} \pi(j) P(j,i)   \,.
+$${#eq-balance1}
+which we are going to interpret as a *balance equation*.
+
+
+We introduce the [(stationary) probability current from  $i$  to $j$]{.red} as 
+$$
+J(i,j) \equiv  \pi(i) P(i,j) 
+$${#eq-probailitycurrent}
+and @eq-balance1 can be rewritten as 
+$$
+\underbrace{\sum_{ j} J(i,j)}_{\textrm{total current out of state } i} \,=\, \underbrace{\sum_j J(j,i) }_{\textrm{total current into of state i}} \, \quad \quad \textrm{ balance equation }
+$${#eq-balance2}
+i.e., to be stationary the total probability current out of $i$ must be equal to the
+total probability current into $i$.
+
+
+## Detailed balance
+
+A stronger condition for stationarity can be expressed in terms of the balance between the currents
+$J(i,j)$.  A Markov chain $X_n$ satisfies [detailed balance]{.red} if there exists $\pi(i)\ge 0$ with
+$\sum_{i} \pi(i)= 1$ such that for all $i,j$ we have
+$$
+\pi(i) P(i,j) \,=\, \pi(j) P(j,i) \quad \textrm{ or equivalently } \quad J(i,j) = J(j,i)
+$${#eq-detailedbalance}
+This means that for every pair $i,j$ the probability currents $J(i,j)$ and $J(j,i)$ balance each other.  
+Clearly @eq-detailedbalance is a stronger condition than @eq-balance2 and thus we have
+
+
+:::{#lem-db}
+If the Markov chain satisfies detailed balance for a probability distribution $\pi$ then $\pi$
+is a stationary distribution.
+:::
+
+But it is easy to see that detailed balance is a stronger condition than stationarity.  The property of
+detailed balance is often also called [(time)-reversibility]{.red} since we have the following results which states that 
+the probability of any sequence is the same as the probability of the time reversed sequence.
+
+:::{#thm-rev name="Time reversibility"} 
+Suppose the Markov chain $X_n$ satisfies detailed balance and assume that the
+initial distribution is the stationary distribution  $\pi$. Then for any sequnce of states $i_0, \cdots i_n$ we have
+$$
+P \left\{ X_{0}= i_0 \,, X_1=i_1\,, \cdots \, , X_n =i_n \right\} \,=\, P \left\{ X_{0}= i_n \,, X_1 = i_{n-1}\,, \cdots \, , X_n =i_0 \right\}
+$$
+:::
+
+## {-}
+
+:::{.proof} 
+Using @eq-detailedbalance  repeatedly we find
+$$
+\begin{aligned}
+P \left\{ X_{0}= i_0 \,, X_1=i_1\,, \cdots \, , X_n =i_n \right\}
+& \,=\, \pi(i_0) P(i_0, i_1) P(i_1, i_2) \cdots P(i_{n-1}, i_n)    \\
+& \,=\,  P(i_1, i_0) \pi(i_1) P(i_1, i_2) \cdots P(i_{n-1}, i_n)    \\
+& \,=\,  P(i_1, i_0)  P(i_2, i_1) \pi(i_2) \cdots P(i_{n-1}, i_n)    \\
+&  \,=\,  \cdots  \\
+& \,=\, P(i_1, i_0)  P(i_2, i_1)  \cdots \pi(i_{n-1}) P(i_{n-1}, i_n)   \\
+&\ \,=\, P(i_1, i_0)  P(i_2, i_1)  \cdots  P(i_n, i_{n-1}) \pi(i_n)    \\
+&\,=\,P \left\{ X_{0}= i_n \,, X_1 = i_{n-1}\,, \cdots \, , X_n =i_0 \right\}  
+\end{aligned}
+$$
+$\blacksquare$
+
+:::
+
+The next result is very easy and very useful.
+
+:::{#thm-uniform} 
+Suppose $X_n$ is a  Markov chain with finite state space $S$ and with a *symmetric*
+transition matrix, i.e,   $P(i,j)=P(j,i)$. Then $X_n$ satisfies detailed balance with $\pi(j)  = 1 /|S|$, i.e., 
+the stationary distribution
+is uniform on $S$.
+:::
+
+## Examples
+
++  *Random walk on the hypercube $\{0,1\}^m$*.  The state space $S$ is 
+$$
+S= \{0,1\}^m \,=\, \left\{ \sigma = ( \sigma_1, \cdots, \sigma_m) \,;\, \sigma_i \in \{0,1\} \right\}
+$$
+To define the move of the random walk, just pick one coordinate $j \in \{ 1, \cdots, m\}$  and flip the $j^{th}$
+coordinate,  i.e., $\sigma_j \to 1- \sigma_j$.  We have thus
+$$
+P(\sigma, \sigma') =\left\{ \begin{array}{cl} \frac{1}{m} & {\rm if~}\sigma {\rm~and~}\sigma' {\rm~differ~by~one~coordinate}
+\\ 0 &{\rm otherwise}
+\end{array}
+\right.
+$$
+Clearly $P$ is symmetric and thus $\pi(\sigma) \,=\, 1/ 2^m$.
+
+
++ *Random walk on the graph $G=(E,V)$*  has  transition probabilities $p(v, w) = \frac{1}{ {\rm deg}(v)}$.  This Markov chain satifies detailed balance with the (unnormalized) $\mu(v) = deg(v)$.  Indeed we have $P(v,w) >0 \iff P(w,v)>0$ and thus if $P(v,w)>0$ we have
+$$
+ \mu(v) P(v, w) \,=\, {\rm deg}(v)  \frac{1}{{\rm deg} (v)} = 1  \,=\, {\rm deg}(w)  \frac{1}{{\rm deg} (w)}= \mu(w) P(w, v) \,.
+$$
+This is slightly easier to verify that the stationary equation $\pi P = \pi$.  After normalization we find
+$\pi(v) = {\rm deg}(v)/2|E|$.  
+For example for the simple random walk on $\{0, 1, \cdots, N\}$ with reflecting boundary conditions
+we find
+$\pi \,=\, \left( \frac{1}{2N}, \frac{2}{2N}, \cdots, \frac{1}{2N} \right)$.
+
+
+## {-}
+
++ *Network Markov chain*:  The previous example can be generalized as follows. For a given
+graph  $G=(E,V)$ let us assign a positive weight $c(e)>0$ to each (undirected) edge $e= \{v,w\}$, that is we choose
+numbers $c(v,w)=c(w,v)$ with $c(v,w)=0$ iff $v$ and $w$ are not connected by an edge. If the transition
+probabilities are given by
+$$
+P(v,w) \,=\, \frac{c(v,w)}{c(v)}  \quad \textrm{ with } c(v) \,=\, \sum_{w} c(v, w)   \,,
+$$
+then it is easy to verify that the Markov chain satisfies detailed balance with 
+$$
+\pi(v) \,=\, \frac{c(v)}{c_G}  \quad \textrm{ with } c_G \,=\, \sum_{v} c(v) \,.
+$$
++  *Birth-Death Processes Markov chain:* Let us consider a Markov chain on  the state space $S=\{0, \cdots, N\}$ ($N$ could be infinite) with transition probabilities have the following tridiagonal structure
+$$
+\begin{matrix}
+0 \\1\\2\\3\\ \cdots
+\end{matrix}
+\begin{pmatrix}
+r_0 & p_0 & 0   & 0& \cdots  \\
+q_1 & r_1 & p_1 & 0 & \cdots \\
+0   & q_2 & r_2 & p_2 & \cdots \\
+\vdots & &\ddots&\ddots & \ddots
+\end{pmatrix}
+$$
+This is called a *birth and death process* since the only possible transition are to move up or down by unit or stay unchanged. Random walks (see @exm-rw1N and @exm-RWonN), discrete queueing models (@exm-discretequeue ), the Ehrenfest urn model @exm-Ehrenfest are special case of birth and death processes. 
+ 
+## {-}
+
+Birth and death Markov chain always satisfy detailed balance. Indeed the only non trivial detailed balance conditions are
+$$
+\pi(j)P(j,j+1) = \pi(j+1) P(j+1,j) \implies   \pi(j) p_j  \,=\, \pi(j+1) q_{j+1} \,, \quad \textrm{ for } j=0, \cdots, N-1 \,.
+$$
+and this can be solved recursively.  We obtain
+$$
+\begin{aligned}
+\pi(1) \,&=\, \pi(0) \frac{p_0}{q_1}     \\
+\pi(2) \,&=\, \pi(1)  \frac{p_1}{q_2} \,=\, \pi(0)  \frac{p_0 p_1 }{q_1 q_2}  \\
+ & \vdots   \\
+ \pi(N) \,&=\, \pi(0)  \frac{p_0 p_1 \cdots p_{N-1}}{q_1 q_2 \cdots q_{N-1}} 
+\end{aligned}
+$$
+and with normalization
+$\pi(j) \,=\,  \frac{ \prod_{k=1}^j  \frac{p_{k-1}}{q_k}}{ \sum_{l=0}^N    \prod_{k=1}^l  \frac{p_{k_1}}{q_k}}$.  If $N$ is infinite we need the sum in the deominator to be finite.
+
+For example the Ehrenfest urn in Example \ref{Ehrenfest} model has
+$$
+p_j \,=\, \frac{N-j}{N} \,, \quad q_j \,=\, \frac{j}{N}
+$$
+and thus we obtain
+$$
+\pi(j) \,=\, \pi(0)  \frac{ \frac{N}{N} \frac{N-1}{N} \cdots \frac{N-(j-1)}{N}}{ \frac{1}{N} \frac{2}{N} \cdots \frac{j}{N}}
+\,=\, \pi(0) { N \choose j }   \quad \textrm{ and also } \pi(0) =\sum_{j=0}^N {N \choose j} \,=\,  2^N.
+$$
+
+

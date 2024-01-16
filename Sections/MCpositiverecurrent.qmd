@@ -1,0 +1,266 @@
+
+
+## Positive recurrence versus null recurrence
+
++ A finite state irreducible Markov chain is always recurrent, $P(\tau(i) < \infty |X_0=j)=1$ and we have proved Kac's formula for the invariant measure $\pi(i) = E[ \tau(i)|X_0=i]^{-1}$, that  is  the random variable $\tau(i)$ has finite expectation.   
+For a countable state space it is possible for a Markov chain to be recurrent but that $\tau(i)$ does not have finite expectation.
+This motivates the following definitions. 
+
++ A state $i$ is  [positive recurrent if $E[ \tau(i)|X_0=i] < \infty$]{.red}
+
++ A state $i$ is  [null recurrent if it is recurrent but not positive recurrent]{.red}
+
+
+We first investigate the relation between recurrence and existence of invariant measures.  We first show that if
+one state  $j$  is positive recurrent then there exists a stationary distribution.  The basic idea is to decompose any
+path of the Markov chain into successive visits to the state $j$.  To build up our intuition
+if a stationary distribution were to exists it should measure the amount of time spent in state $i$ and to
+measure this we introduce 
+$$
+\mu(i) = E\left[ \sum_{n=0}^{\tau(j)-1} {\bf 1}_{\{X_n=i\}}| X_0=j \right] \quad = \textrm{number of visits to $i$ between two successive visits to $j$}. 
+$$
+
+
+
+
+
+Note that $\mu(j)=1$ since $X_0=j$, and if $j$ is positive recurrent
+$$
+\sum_{i} \mu(i) = \sum_{i\in S} E\left[ \sum_{n=0}^{\tau(j)-1} {\bf 1}_{\{X_n=i\}}| X_0=j \right] \,=\,  E\left[ \tau(j) \,|\, X_0=j \right]
+$$
+
+## {-}
+
+and thus
+$$
+ \pi(i)= \frac{\mu(i)}{E[ \tau(i)|X_0=i]}
+$$
+is a probability distribution.  
+
+:::{#thm-stationarydistribution}  
+For a recurrent irreducible Markov chain $X_n$ and a fixed state
+$j$,  $\mu(i) = E[ \sum_{n=0}^{\tau(j)-1} {\bf 1}_{\{X_n=i\}}| X_0=j ]$ is stationary in the sense that  
+$$
+\mu P = \mu
+$$
+If the state $j$ is positive recurrent then $\mu$ can be normalized to a stationary distribution $\pi$. 
+
+:::
+
+:::{.proof}   
+The chain visits $j$ at time $0$ and then only again at time $\tau(j)$ and thus we have the two formulas
+$$
+\begin{aligned}
+\mu(i) &= E\left[ \sum_{n=0}^{\tau(j)-1} {\bf 1}_{\{X_n=i\}}| X_0=j \right] = \sum_{n=0}^\infty P( X_{n}=i, \tau(j)> n | X_0=j)\\
+&= E\left[ \sum_{n=1}^{\tau(j)} {\bf 1}_{\{X_n=i\}}| X_0=j \right]
+= \sum_{n=1}^{\infty} P( X_n=i, \tau(j) \ge n  | X_0=j )
+\end{aligned}
+$$
+::: 
+
+## {-}
+
+
+We have then, by *conditioning on the last step*,  and using $\mu(j)=1$
+$$
+\begin{aligned}
+\mu(i)  &= \sum_{n=1}^{\infty} P( X_n=i, \tau(j)\ge n | X_0=j ) =  P(j,i)  + \sum_{n=2}^\infty P( X_n =i,  \tau(j)\ge n | X_0=j)  \\
+&=  P(j,i)  +\sum_{k \in S, k\not=j} \sum_{n=2}^\infty P( X_n =i,  X_{n-1}=k,  \tau(j)\ge n | X_0=j)  \\
+&=  P(j,i)  +\sum_{k \in S, k\not=j} \sum_{n=2}^\infty P(k,i) P( X_{n-1}=k, \tau(j)\ge n | X_0=j)  \\
+&=  P(j,i)  +\sum_{k \in S, k\not=j} \sum_{n=2}^\infty P(k,i) P( X_{n-1}=k, \tau(j)> n-1 | X_0=j) \\
+&=  P(j,i)  +\sum_{k \in S, k\not=j} \sum_{m=1}^\infty P(k,i) P( X_{m}=k, \tau(j)> m | X_0=j) \\
+&= \mu(j) P(j,i) + \sum_{k\not=j} E\left[ \sum_{m=1}^{\tau(j)-1} {\bf 1}_{\{X_m=k\}}| X_0=j \right] P(k,j) \\
+&= \mu(j) P(j,i) + \sum_{k\not=j} \mu(k) P(k,j) \,=\, \sum_{k} \mu(k) P(k,j)
+\end{aligned}
+$$
+which proves the invariance of $\mu$. If the chain is positive recurrent we have laready seen that $\mu$ is normalizable. $\quad \blacksquare$.
+
+
+## Stationarity and irreducibility implies positive recurrence
+
+:::{#thm-stationarydistribution2}
+Assume the irreducible Markov chain has a stationary distribution $\pi(i)$ then  $\pi(i)>0$ for any $i$ and we
+we have Kac's formula $\pi(i) = E \left[ \tau(i)  | X_0=i \right]^{-1}$. In particular all states are positive recurrent
+and the stationary distribution is unique. 
+:::
+
+:::{.proof} 
+
+Let us assume that $\pi$ is invariant. We first show that the chain must be recurrent. If the
+chain were  transient then we would have $P^n(i,j) \to 0$ as $n \to \infty$ and so by dominated convergence
+$$
+\pi(i) = \sum_{j} \pi(j) P^n(j,i)  \to 0  \textrm{ as } n \to \infty \,.
+$$
+which is impossible.  
+
+The fact that $\pi(i)>0$ for all $i\in S$ is proved as for finite state space see the argument in @thm-uniquenessfinite.
+
+
+To prove positive recurrence we use a clever argument involving the time reversed chain (more on time reversal in @sec-mcmc and in the exercises). Consider the Markov chain with transition matrix $Q(i,j)=\frac{\pi(j) P(j,i)} {\pi(i)}$. It is easy to verify that $Q(i,j)$ is a transition matrix and that $\pi$ is stationary for $Q$, $\pi Q=\pi$. We denote by $Y_n$ the Markov chain with transition matrix $Q$, since $\pi(i)>0$ this Markov chain has the same communication structure as $X_n$ and is irreducible since $X_n$ is. 
+By the previous argument $Y_n$ must be recurrent.     
+
+:::
+
+## {-}
+
+Next we write
+$$
+\pi(i)  E[ \tau(i) |X_0=i]  \,=\, \pi(i) \sum_{n=1}^\infty P (\tau(i) \ge n |X_0=i)
+$$
+The event $\{\tau(i) \ge n \}$ conditioned on $\{ X_0=i\}$  correspond to a sequence of states 
+$$
+i_0=i, i_1, \cdots \cdots, i_{n-1}, i_n=j
+$$
+where  $i_1,  \cdots, i_{n-1}$ cannot be  equal to $i$ and $j$ can be any state. Using repeatedly the relation $\pi(i)P(i,j)= \pi(j)Q(j,i)$
+the probability of such event can be written as 
+$$
+\begin{aligned}
+\pi(i) P(i,i_1) \cdots P(i_{n-1}, i_n)  &=   \pi(j) Q(j,i_{n-1}) \cdots Q(i_1, i)
+\end{aligned}
+$$
+For the Markov chain $Y_n$ this correspond to a path starting in $j$ and returning to $i$ after exactly $n$ steps. Therefore we find 
+
+$$
+\begin{aligned}
+\pi(i)  E[ \tau(i) |X_0=i]  = \pi(i) \sum_{n =1}^\infty P (\tau(i) \ge n |X_0=i)    
+&= \sum_{j \in S} \pi(j)\sum_{n=1}^\infty  P ( \tau(i) =n | Y_0 = j)   \\
+&= \sum_{j \in S} \pi(j)  P( \tau(i) < \infty|Y_0 = j)  =1 \,.
+\end{aligned}
+$$
+where for the last equality we have used  the recurrence of the time reversed chain. This shows Kac's formula which implies the uniqueness of the stationary distribution and that all states are positive recurrent. $\quad \blacksquare$
+
+
+
+
+## Ergodic theorem for countable Markov chains
+
+:::{#thm-ergcountable name="Ergodic theorem for countable state space Markov chains"}
+1. If $X_n$ is irreducible and positive recurrent then there exists a  unique stationary distribution $\pi$ and 
+for any initial distribution $\mu$ we have
+$$
+\lim_{n \to \infty} \frac{1}{n}  \sum_{k=0}^{n-1} {\bf 1}_{\{X_k=j\}}  \,=\, \pi(j) \,,
+$$
+with probability $1$.   In particular
+$\lim_{n \to \infty} \frac{1}{n}  \sum_{k=0}^{n-1} \mu P^k(j)  \,=\, \pi(j)$\,.
+Moroever $\pi$ we have the Kac's formula $\pi(j) =\frac{1}{E[ \tau(j) |X_0= j]}$. Conversely if an irreducible Markov has a stationary distribution then it is positive recurrent.
+
+:::
+
+:::{.proof}  
+We have actually already proved all of it. Positive recurrence implies the existence of the stationary distribution (@thm-stationarydistribution) and Kac's fromula is from @thm-stationarydistribution2 which implies uniqueness of the stationary distribution.  We can now repeat the proof 
+of @thm-ergMC to show that if $X_0=i$ with $i$ arbitrary we have
+$$
+\lim_{n \to \infty} \frac{1}{n}  \sum_{k=0}^{n-1} {\bf 1}_{\{X_k=j\}} = \pi(j) \,.
+$${#eq-coer}
+The reader should verify that the proof of @thm-ergMC only use positive recurrence and not the finiteness of the state space.
+Taking now expectation
+of @eq-coer and summing over initial condition we have  $\lim_{n \to \infty} \frac{1}{n}  \sum_{k=1}^{n} \mu P^k(j) \,=\,  \pi(j)$. $\quad \blacksquare$
+
+:::
+
+## Convergence to equilibrium via coupling
+
+
+We continue our theoretical consideration by proving that if the chain is aperiodic then the distribution of
+$X_n$ converges to $\pi(j)$.
+
+
+
+:::{#thm-convergenceaperiodic}  
+Suppose $X_n$ is an irreducible positive recurrent aperiodic Markov chain.  Then for any initial
+distribution $mu$ we have
+$$
+\lim_{n \to \infty}   \mu P^n(j)  \,=\, \pi(j) \,.
+$$
+
+:::
+
+:::{.proof} 
+We will use a *coupling argument*:  we take two independent copies $X_n$ and $Y_n$ of the Markov chain where
+$X_n$  is starting in the initial distribution $\mu$ while $Y_n$ is starting in the stationary distribution $\pi$.
+
+The idea is to consider the coupling time
+$$
+\sigma = \inf\{ n \ge 1 ; X_n = Y_n\} \,.
+$$
+At the (random) time $\sigma$,  $X_n$ and $Y_n$ are in the same state and after that time $X_n$ and $Y_n$  must have the same distribution 
+by the (strong) Markov property. But since $Y_n$ is distributed according to $\pi$ so must $X_n$ be as well and thus, at the coupling time $\sigma$, $X_n$ has reached stationarity.
+
+:::
+
+## {-}
+
+Let us now consider the chain $Z_n=(X_n,Y_n)$  with transition probabilities 
+$$
+P( Z_{n+1} = (k,l) \,|\, Z_n=(i,j) ) = P(i,k) P(j,l)
+$$
+and stationary distribution $\pi( i,j) = \pi(i) \pi(j)$.  Since $X_n$ and $Y_n$ are aperiodic, given states $i,j,k,l$
+we can find $n_0$ such that for every $n \ge n_0$ we have $P^n(i,k) > 0$ and $P^n(j,l)>0$.  This implies that $Z_n$
+is irreducible and thus, since a stationary measure exists, by @thm-ergcountable the chain $Z_n$
+is positive recurrent.  Since the coupling time is the first time the Markov chain $Z_n$ hits a state of the form $(j,j)$, recurrence of 
+$Z_n$  implies that  $P( \sigma < \infty)=1$  and thus $P(\sigma >n ) \to 0$.
+
+To conclude
+$$
+\begin{aligned}
+\left| \mu P^n(j) - \pi(j)\right| & =  \left| P( X_n=j) - P(Y_n =j) \right|   \\
+ & \le  \left| P( X_n=j , \sigma \le n ) - P(Y_n =j , \sigma\le n) \right| + \left| P( X_n=j , \sigma > n ) - P(Y_n =j, \sigma > n) \right|  \\
+ & =   \left| P( X_n=j , \sigma > n ) - P(Y_n =j, \sigma > n) \right|  \\
+ & =  \left|  E[  ({\bf 1}_{\{X_n=j\}} - {\bf 1}_{\{Y_n=j}\}) {\bf 1}_{\{\sigma > n\}} ]  \right|  \\
+ & \le  E[ {\bf 1}_{\{\sigma > n\}}] = P( \sigma > n) \rightarrow 0  \textrm{ as } n \to \infty
+\end{aligned}
+$$
+and this prove the convergence. $\quad \blacksquare$.
+
++ The idea of coupling used in @thm-convergenceaperiodic is an instance of powerful idea. First we can use other coupling that the one used here and if we can bound the tail behavior of the coupling time then we can control the speed of convergence to the stationary distribution! 
+We will exploit this idea later on.
+
+## Examples 
+
++ Positive recurrence for the random walk on $\{0,1,2, \cdots\}$.  Continuing with @exm-RWonN, we use @thm-ergcountable  to  establish positive recurrence by computing the stationary distribution.  We find the equations
+$$
+\pi(0) (1-p) + \pi(1)(1-p) = \pi(0) \quad \textrm{ and } \quad  \pi(j+1)(1-p) + \pi(j-1)p = \pi(j) \quad \textrm{ for }j \ge 1
+$$
+The second equation has the general solution 
+$$
+\pi(n)=C_1 + C_2 \left(\frac{p}{1-p}\right)^n \,\,\,(\textrm{if }p\not=\frac12)  \quad \textrm{ and  } \quad \pi(n)=C_1 + C_2n\,\,\,  (\textrm{ if } p=\frac12) 
+$$
+and the first equation gives $\pi(1)=\frac{p}{1-p}\pi(0)$.  For $p=\frac{1}{2}$ we cannot find a normalized solution. For $p < \frac{1}{2}$ we can choose $C_1=0$ and $\pi(n) = \left(\frac{p}{1-p}\right)^n \pi(0)$ can be normalized toi find $\pi(n) = \frac{1-2p}{1-p} \left(\frac{p}{1-p}\right)^n$. If $p> \frac{1}{2}$ we already know the Markov chain is transient and thus
+$$
+\textrm{ The random walk on } \{0,1,2, \cdots\} \textrm{ is } \left\{ \begin{array}{l} \textrm{transient for } p> \frac{1}{2} \\
+  \textrm{null recurrent for } p = \frac{1}{2} \\
+   \textrm{positive recurrent for } p < \frac{1}{2} \\
+  \end{array}
+  \right.    \,.
+$$
+
+## {-}
+
++ Positive recurrence for the success run chain: Continuing with Examples @exm-successrun we determine recurrence by solving $\pi P=\pi$.
+This gives the equations
+$$
+\begin{aligned}
+\pi(0) &= \pi(0) q_0 + \pi(1)q_1 + \cdots = \sum_{n=0}^\infty \pi(n)  q_n \\
+\pi(1) &= \pi(0) p_0\,, \quad   \pi(2)  = \pi(1) p_1, \quad \cdots
+\end{aligned}
+$$
+From the second line we find  $\pi(n) = \pi(0) p_0 p_1 \cdots p_{n-1}$ and inserting into the first equation
+$$
+\pi(0) = \pi(0) \left[ (1-p_0) +  p_0 (1-p_1)  + p_0 p_1(1-p_2) + \cdots \right] = \pi(0) \left[ 1 - \lim_{n \to \infty} p_0 p_1 \cdots p_{n-1}\right]
+$$
+Recall that recurrence occurs provided  $\lim_{n\to \infty} \prod_{j=0}^{n-1} p_j = 0$
+and so if $X_n$ is recurrent there exists a solution of $\pi P=\pi$ and we can normalize $\pi$ provided
+$$
+\sum_{n=1}^\infty  \prod_{j=0}^{n-1} p_j  < \infty
+$$
+Therefore we obtain
+$$
+\textrm{ The success run chain  is } \left\{ \begin{array}{l} \textrm{transient if } \lim_{n}  \prod_{j=0}^{n-1} p_j  >0 \\
+  \textrm{recurrent if  } \lim_{n}  \prod_{j=0}^{n-1} p_j  = 0  \\
+   \textrm{positive recurrent if } \sum_{n} \prod_{j=0}^{n-1} p_j < \infty \\
+  \end{array}
+  \right.    \,.
+$$
+
+
+

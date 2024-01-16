@@ -1,0 +1,679 @@
+
+
+In this section that we build a continuous time Markov process $X_t$ with $t\ge 0$.  The Markov property can be expressed as 
+$$
+P\{ X_t=j| \{X_{r}\}, 0\le r \le s  \} = P\{X_t=j| X_s \} \,.
+$$
+for any $0 < s < t$. 
+
+
+## Exponential random variables
+
+ To construct a Markov we will need lots of exponential random variables.   Recall that an exponential random variable $T$ with paramter $\lambda$ has 
+the pdf $f_T(t)=\lambda e^{-\lambda t}$, for $t \ge 0$  the cdf $F_T(t) = 1- e^{-\lambda t}$  and mean $E[T]=\frac{1}{\lambda}$.   
+
+
+:::{#prp-propexp name="Properties of exponential randomm variables"}  
+Let $T_1, T_2, T_3, \cdots$ be independent exponential random variables with parameter $\lambda_1, \lambda_2, \cdots$. Then 
+
+  1.  $T= \min\{ T_1, \cdots, T_n\}$ is an exponential random variables with paramter $\lambda_1+ \cdots \lambda_n$. Note that $n=\infty$ is allowed if we assume that $\sum_{n}\lambda_n$ is finite. 
+  2.  $\displaystyle P\{ T_i = \min \{ T_1, \cdots, T_n\} \} = \frac{\lambda_i}{\lambda_1+ \cdots \lambda_n}$
+
+:::
+
+:::{.proof} 
+For 1. we have, using independence, 
+$$
+P\left\{ T > t  \right\} = P\left\{ T_1 > t, \cdots, T_n > t \right\} = P\left\{ T_1 > t  \right\} \cdots P\left\{ T_m > t  \right\} 
+= e^{-(\lambda_1+ \cdots \lambda_n)t}
+$$
+and thus $T$ is an exponential random variable.  
+For 2. we have, by conditioning, 
+$$
+P\left\{ T_1 = T  \right\} = \int_0^\infty P\{ T_2>t, \cdots, T_n > t \}    f_{T_1}(t) \, dt = \int_0^\infty e^{-(\lambda_2 + \cdots+ \lambda_n)t} \lambda_1 e^{-\lambda_1 t}\, dt = \frac{\lambda_1}{\lambda_1+ \cdots \lambda_n}
+$$
+$\blacksquare$
+:::
+
+
+## Definition of a continuous time Markov chain
+
++ As for the Poisson process we will give two equivalent definition of the process, the first one describe infinitesinmal rate of change and leads to a *system of ODEs* describing the evolution of the pdf of $X_t$.  The second definition use exponential random variables and waiting times and leads 
+to an algorithm to simulate a continuous time Markov chain, often called the *stochastic simulation algorithm*.  
+
+. . . 
+
++  To define a Markov process on the state space $S$ we assign a number $\alpha(i,j)$ for any pair of state $i\not=j$. You should think these numbers 
+$$
+\alpha(i,j) = \textrm{ rate at which the chain changes from state } i \textrm{ to state } j \,.
+$$
+We denote 
+$$
+\alpha(i) = \sum_{j\not= i} \alpha(i,j) = \textrm{ rate at which the chain changes from state } i \,.
+$$ 
+
+. . .
+
++ Formally a [continuous Markov chain with rates $\alpha(i,j)$]{.red} is a stochastic process such that 
+$$
+\begin{aligned}
+P\{ X_{t+\Delta t}=i| X_t=i\} &= 1 - \alpha(i)\Delta t + o(\Delta t) \\
+P\{ X_{t+\Delta t}=j| X_t=i\} &= \alpha(i,j)\Delta t + o(\Delta t)
+\end{aligned}
+$$
+
+## {-}
+
++ Proceeding as for the Poisson process we can derive a differential equation for $p_t(i)=P\{X_t =i\}$. By conditioning we have 
+$$
+P\{ X_{t+\Delta t}=i\} = (1 - \alpha(i)\Delta t )P\{  X_t=i\} + \sum_{j \not =i} \alpha(j,i)\Delta t P\{  X_t=j\} + o(\Delta t)
+$$
+which leads to the system of linear ODE's 
+$$
+\frac{d}{dt}p_t(i) = -\alpha(i) p_t(i) + \sum_{j \not= i} \alpha(j,i) p_t(j)
+$${#eq-KK1}
+called the *Kolmogorov backward equations*.     
+
+. . .
+
++ The [infinitesimal generator of a continuous-time Markov chain]{.red} is 
+given by the matrix 
+$$
+A = 
+\begin{matrix}
+1 \\ 2 \\ 3 \\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+-\alpha(1) & \alpha(1,2) & \alpha(1,3) &  \cdots  \\
+\alpha(2,1) & -\alpha(2) & \alpha(2,3) & \cdots\\
+\alpha(3,1) & \alpha(3,2) & -\alpha(3) &  \cdots\\
+\vdots  &  \vdots &  \vdots &
+\end{pmatrix}
+$$
+and the entries of $A$ satifies 
+$$
+A(i,j)\ge 0 \textrm{ for } i \not= j  \quad \textrm{ and } \sum_{i} A(i,i) = 0
+$$
+
+## {-} 
+
++ If we use a row vector $p_t = (p_t(1), p_t(2), \cdots)$ then we can rewrite 
+@eq-KK1 as the system
+$$
+\frac{d}{dt}p_t = p_t A 
+$${#eq-KK2}
+
++ If *$S$ is finite* then one can write the solution in terms of the matrix exponential $e^{tA}= \sum_{k=0}^\infty \frac{t^k A^k}{k!}$ 
+$$
+p_t = p_0 e^{tA} \,.
+$$
+where $p_o(i)=P\{X_0=i\}$ is the initial distribution.
+
++ We can also write equation for the transition probabilities (take $X_0=i$)
+$$
+P_t(i,j) = P \{ X_t =j| X_0=i\}
+$$ 
+and we obtain the matrix equation
+$$
+\frac{d}{dt}P_t = P_t A, \quad \textrm{ with } P_0 =I \quad  \implies \quad  P_t = e^{tA}
+$$
+which we can solve using linear algebra techniques
+
+## Example
+
+$$
+A = 
+\begin{matrix}
+1 \\ 2 \\ 3 \\ 4
+\end{matrix}
+\begin{pmatrix}
+-1 & 1 & 0 & 0  \\
+1 & -3 & 1 & 1  \\
+0 & 1 & -2 & 1  \\
+0 & 1 & 1 & -2 
+\end{pmatrix}
+$$
+The (right) eigenvalues of $A$ are $0, -1, -3, -4$ and we can diagonalize $A$ and find 
+$$
+D=\begin{pmatrix}
+0 & 0 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+0 & 0 & -3 & 0 \\
+0 & 0 & 0 & -4 \\
+\end{pmatrix}
+= Q^{-1} A Q 
+$$
+where the rows of $Q$ are the corresponding eiegenvectors: 
+$$
+Q=\begin{pmatrix}
+1& 1          & 0         & -\frac13 \\
+1& 0          & 0         & 1         \\
+1& -\frac12   & -\frac12  & -\frac13  \\
+1& -\frac12   & \frac12   & \frac13   \\
+\end{pmatrix} \quad \quad 
+Q^{-1}=\begin{pmatrix}
+\frac14 & \frac14          & \frac14         & \frac14 \\
+\frac23& 0          & -\frac13        & -\frac13      \\
+0& 0   & -1  & -1 \\
+-\frac14& \frac34   & -\frac14   & -\frac14   \\
+\end{pmatrix}
+$$
+Then we find 
+$$
+P_t = e^{tA} = Q e^{tD} Q^{-1} = 
+$$
+
+
+
+## Alternative description
+
+We can also construct the Markov chain $X_t$ using exponential random variable. 
+
++ If $X_t=i$  consider (independent) random variable $T(i,j)$ with parameter $\alpha(i,j)$ for $j \not =i$. Think of those as exponential clocks and when the first of the clocks rings, say clock $j$, then the Markov chain moves to state $j$. 
+
++ Using @prp-propexp we see that the chain moves from the state $i$ to $j$ if the clocks associated to the pair $(i,j)$ rings first and this occur with probability 
+  $$
+  Q(i,j) = \frac{\alpha(i,j)}{\sum_{j \not= i}\alpha(i,j)} = \frac{\alpha(i,j)}{\alpha(i)}
+  $$
+  
++ The matrix $Q(i,j)$ is the transition matrix for a discrete time Markov chain $Y_n$ which has the same junmps probabilities as $X_t$ but the transition occur at each unit time.
+
++ Then a new set of clocks with rates $\alpha(j,k)$ is produced and the process starts anew until the Markov chain moves to a new state.
+    
+  
++ By @prp-propexp we can express this slightly differently. If in state $i$ we use a single clock with rate $\alpha(i)$ and when this clock rings then we move to state $j$ according to the discrete time Markov chain $Q(i,j)$. 
+
+
+## {-}   
+
++ The Markov property follows form the memoryless property for an  exponential distribution $T$:  $P(T\ge t +s| T \ge s) = P(T>t)$.  
+
++ If $X_t=i$ then by construction the *position after the next jump after time $t$* clearly depends only $i$ and not the states that the Markov chain visited before time $t$. Moreover if we consider the time of the last jump before time $t$ which occured, say at time $s<t$, then the memoryless property of the exponential random variable implies that the *time at which the jump occur after time $t$* does not depend on $s$ at all.  Putting these together this implies the Markov property
+$$
+  P\{X_{t+u} =j | X_{s}, 0 \le s \le t\} =  P\{X_{t+u} =j | X_t \}
+$$
+  
+  
++ To connect this to the previous description we note that by conditioning on the first jump
+$$
+  P_t(i,j) = P(X_t=j|X_0=i) = \delta(i,j) e^{-\alpha(i) t} + \int_0^t \alpha(i) e^{-\alpha(i)s} \sum_{k} {Q(i,k)} P_{t-s}(k,j) ds
+$$ 
+Iterating this equation and setting $t=\Delta t$ we find   
+$$
+\begin{aligned}
+P(X_{\Delta t}=j|X_0=i) &= \delta(i,j) e^{-\alpha(i) \Delta t} + \int_0^t \alpha(i) e^{-\alpha(i)s} \sum_{k} \frac{\alpha(i,k)}{\alpha(i)} \delta(k,j) e^{-\alpha(k)(t-s)} ds + \cdots  \\
+&= \delta(i,j) e^{-\alpha(i) \Delta t} + \alpha(i,j) \Delta t  \times \underbrace{ e^{-\alpha(j) \Delta t}
+\frac{1}{\Delta t} \int_0^{\Delta t}   e^{-(\alpha(i)-\alpha(j)) s} ds
+}_{\to 1 \textrm{ as }\Delta t \to 0} + \cdots \\
+&= \delta(i,j) (1 - \Delta t \alpha(i)) + \alpha(i,j) \Delta t + o(\Delta t)
+\end{aligned}
+$$
+The higher order terms are negligible since the probability to have two jumps in the time interval $[0,\Delta t]$ is $o(\Delta t)$.
+
+
+## Uniformizable chain
+
++ Consider a Markov chain $Y_n$ with transition matrix $Q$ and we assume that $Q(i,i)=0$.  Then we pick rate $\lambda(i)=1$ for all states $i$. The times at which the Markov chain has transition is thus a sum of IID exponential, that at time descriebed by a Poisson process. In other terms we have 
+$$
+X_t = Y_{N_t}
+$$
+where $N_t$ is a Poisson process with rate $1$. 
+
+. . .
+
++ In this case we can compute the transition matrix quite explicitly: 
+$$
+\begin{aligned}
+P\{X_t=j|X_0=i\}& = P\{ Y_{N_t}=j| X_0=i\} \\
+&= \sum_{n=0}^\infty P\{ Y_{N_t}=j, N_t=n| X_0=i\} \\
+&= \sum_{n=0}^\infty P\{ Y_n=j| X_0=i\} P\{N_t=n\} \\
+&= \sum_{n=0}^\infty \frac{e^{-\lambda t} (\lambda t)^n}{n!} Q^n(i,j) 
+\end{aligned}
+$$
+
+and the generator is given by $A = (Q-I)$.
+
+
+
+
+## Stationary distributions and detailed balance
+
++ A probability vector $\pi$ is a [stationary distribution for the Markov chain with generator $A$]{.red} if  
+$$
+\pi P_t = \pi \quad \textrm{ for all } t =0
+$$
+which, by Komlogorov equation, is equivalent to 
+$$
+\pi A = 0  
+$$ 
+
+
++ In terms of the rate $\alpha(i,j)$ we see that $\pi$ is stationary if ansd only if 
+$$
+\sum_{i \not= j} \pi(i) \alpha(i,j) = \pi(j)\alpha(j) = \sum_{i \not=j} 
+\pi(j) \alpha(j,i)
+$$
+which we can interpret as a balance equation:  $\pi(i)\alpha(i,j)$ is the rate at which the chain in a state $\pi$ changes from $i$ to $j$. 
+
++ As for discrete time we say that a Markov chain satisfies [detailed balance]{.red} if 
+$$
+\pi(i) \alpha(i,j) = \pi(j) \alpha(j,i) \textrm{ for all } i \not= j
+$$
+and detailed balance obviously implies stationarity.
+
+
+## {-} 
+
++ The Markov chain with generator $A$ is [irreducible]{.red} if for any pair of states $i,j$ we can find states $i_1, \cdots, i_{N-1}$ such that 
+$$
+\alpha(i,i_1) \alpha(i_2, i_3) \cdots \alpha(i_{N-1},j) >0
+$$
+If there exists a stationary distribution for an irreducible chain then $\pi(i)>0$ for  all $i$. Indeed if $\pi(i)>0$ and $\alpha(i,j)>0$ then $\pi A(j) =0$ implies that $\pi(j)\alpha(j) = \sum_{k}\pi(k)\alpha(k,j) \ge \pi(i)\alpha(i,j)>0$ and thus $\alpha(j)>0$.  
+
++ The issue of periodicity cannot occur for continuous time Markov chains
+
+:::{#lem-nopercont }
+For an irreducible Markov chain with generator $A$, $P_t(i,j)>0$  for all  $i,j$ and all $t>0$.
+:::
+
+:::{.proof}
+Using the Markov property 
+$$
+\begin{aligned}
+P\{X_t=j|X_0=i\} &\ge P \{ X_{t/N}=i_i, X_{2t/N}=i_2, \cdots X_{t}=j |X_0=i\} \\
+&= P \{ X_{t/N}=i_1| X_0=i\}  P\{ X_{2t/N}=i_2| X_{t/N}=i_i\} \cdots P\{ X_{t}=j |X_{t\frac{N-1}{N}}=i_{n-1}\} 
+\end{aligned}
+$$
+and for example  
+$$
+P \{ X_{t/N}=i_1| X_0=i\} \ge \int_0^{t/N} \alpha(i) e^{-\alpha(i)s} Q(i,i_1)
+e^{-\alpha(i_1)(t-s)}>0
+$$
+$\blacksquare$
+:::
+
+## Convergence to the stationary distribution
+
+If the state space is finite and the chain is irreducible then we have convergence to equilibrium. 
+
+:::{#thm-co} 
+If the state space $S$ is finite and the Markov chain with generator $A$ is irreducible then for any initial distribution $\mu$ we have 
+$$
+\lim_{t \to \infty}\mu P_t = \pi 
+$$ 
+::: 
+
+:::{.proof} 
+We use a spectral argument and the result for discrete time Markov chain. 
+Pick a number $a$ such that $a$ is strictly greater than all entries of $A$ (this is possible since $A$ is finite). Consider the matrix 
+$$
+R= \frac{1}{a}A + I.
+$$
+Then $R$ is a stochastic matrix and the Markov chain $Y_n$ with transition matrix $R$ is irreducible and aperiodic (because $Q(i,i)>0$).  Then from @thm-convMC we know (details in the exercises) that $R$ has a simple eigenvalue 1 and all other eigenvalues $\lambda$ satisfy $|\lambda|<1$. 
+Now
+$$
+Qf = \lambda f \iff  Af =a(\lambda -1) f
+$$
+and so $0$ is a simple eigenvalue for $A$ and the other eiegenvalue are of the form $a(\textrm{Re}(\lambda) -1) + i a \textrm{ Im }(\lambda)$ and so the real part is strictly negative.  
+:::
+
+## {-}
+
+The vector $1=(1,1, \cdots,1 )^T$ is a right eigenvector for $A$ and $\pi$ is a left eigenvector for $A$.  If we define the matrix $\Pi$ as the matrix whose rows are equal to $\pi$, we have then 
+$$
+(P^t - \Pi) \begin{pmatrix} 1\\ \vdots \\1 \end{pmatrix}= 0 \textrm{ and } \pi(P^t - \Pi) =0\,.
+$$
+Moreover if $f$ the right  eigenvector and $g$ the left eigenvector for $A$ for the eigenvalue $\mu \not=0$ then we have 
+$$
+\pi (Af) = \mu \pi f = (\pi A) f =0  \quad \textrm{ and }  (g A) 1 = g (A1) = \mu g 1 =0 
+$$
+and thus we must have $\pi f=0$ and $g 1 =0$. 
+Therefore  
+$$
+P^t - \Pi)f = P^t f = e^{\mu t} f \textrm{ and }  g(P^t - \Pi) = gP^t = e^{\mu t} g. 
+$$ 
+This implies that $P^t - \Pi$ has the simple eigenvalue $0$ and the same eigenvalues $e^{\mu t}$ as $P^t$ and $\mu$ has strictly negative real part. 
+Therefore $P^t - \Pi$ converges to $0$ as $t \to \infty$, or 
+$$
+\lim_{t \to \infty} P_t(i,j)= \pi(j) .
+$$
+
+
+
+## Transient behavior
+
+To study the transient behavior in continuous time we can use similar ideas as in discrete time.  
+
+
++ *Absorption probabilities*:  the absorption probabilities do not depend on the time spent in every state so they can be computed using the transition matrix $Q(i,j)$ for the embedded chain $Y_n$ and the formula in Section [Absorption probabilities] 
+
+
++ *Expected hittiing time*:  For example we have the following result
+
+
+:::{#thm-hittingtime}
+Supose $X_t$ is a Markov chain with generator $A$  and for $i\not j$ let 
+$$
+\Sigma(j) = \inf\{t \ge 0 ; X_t=i\}  
+$$
+be the first hitting time to state $j$.   Let $\tilde{A}$ the matrix obtained by deleting the $j^{th}$ and $j^{th}$ column from the generator $A$. Then we have
+$$
+E[\Sigma(j)|X_0=i] = \sum_{l \not= j} B(i,l)  \quad \textrm{ where } B= \tilde{A}^{-1}
+$$
+The matrix $\tilde{A}$ has rowsums which are non-positive and at least one of the row must be strictly negative. 
+::: 
+
+## 
+
+:::{.proof} 
+By conditioning on the first jump which happens at time $T$ we have 
+$$
+E[\Sigma(j)|X_0=i] = \underbrace{E[T|X_0=i]}_{\textrm{expected time until the first jump }} + \sum_{k\in S, k\not=j} P\{ X_T = k|X_0=i\} \underbrace{E[ \Sigma(j)|X_0=k]}_{\textrm{expected hitting time} \atop \textrm{ from the state after the first jump}}   
+$$
+If we set $b(i)=E[\Sigma(j)|X_0=i]$ (for $i \not= j$) we find the equation
+$$
+b(i)= \frac{1}{\alpha(i)} + \sum_{k \not= j} \frac{\alpha(i,k)}{\alpha(i)} b(k)  \implies  1 =  \alpha(i) b(i)  - \sum_{k\not= j}\alpha(i,k) b(k)
+$$
+which reads, in matrix form as 
+$$
+1 = -\tilde{A} b \implies b= (-\tilde{A})^{-1} 1.
+$$ 
+To show that $-\tilde{A}$ is invertible we consider the matrix 
+$R= \frac{1}{a}\tilde{A} + I$ where $a$ is chosen larger than all the entries. Then the entries of $R$ are non-negative and the rowsums do not exceed one with at least one strictly less than $1$. By the results for discrete time Markov chains we know that 
+$$
+I-R=(-\frac{1}{a} A)
+$$ 
+is invertible.  
+
+:::
+
+## Explosion
+ 
++ For a continuous time Markov chain $X_t$ let us consider the time of the successive jumps
+$$
+S_1=T_1, S_2=T_1+T_2, S_3=T_1+T_2+T_3, \cdots
+$$
+Here the $T_i$ are independent exponential but, in general, no identically distributed  with paramters $\alpha_i$ which depends on the state being visited. We have then 
+$$
+E[S_n]= \sum_{i=1}^n \frac{1}{\lambda_i}
+$$
+
++ *Explosion*: To see what can happen consider a Markov chain with rate $\alpha(i,i+1)=(n+1)^2$ and all other rates equal to $0$. Then the Markov chain moves up by $1$ at every jump like a Poisson process but at accelerated pace. We 
+have then 
+$$
+E[S_\infty]= \sum_{n=1}\frac{1}{n^2} < \infty
+$$
+so $S_\infty < \infty$ with probability $1$. So there are infinitely many jumps in finite time and $X_t=+\infty$ after a finite time. This is called explosion. 
+
+## {-}
+
++ This is an issue familiar in ODE: the equation $\frac{d}{dt} x_t = x_t^2$ has solution has solution $x_t= \frac{x_0}{x_0-t}$ which blows up at time $t=x_0$. 
+
++ It is not easy to determine if an explosion really occurs. Indeed for no explosion to occur we must have, with probabilty 1, 
+$$
+\sum_{n} \frac{1}{\alpha(Y_n)} = \infty
+$$ 
+where $Y_n$ is the embedded chain.   
+
++ A sufficient condition for non-explosion is a suitable upper bound on the rates $\alpha(i)$, say $\alpha(i) \le \alpha$ which is true for finite state spaces but this is by no means necessary. 
+
+
+
+
+## Transience, recurrence, and positive recurrence.
+
++ The recurrence and transience for a continuous time Markov chain can be defined as for discrete time.  A an irreducbile Markov chain $X_t$ is [recurrent]{.red} if the chain starting from a state $i$ returns to $i$ with probability $1$ and [transient]{.red} if $X_t$ never return to $i$ with some non-zero probability.   
+
++ Transience/recurrence has nothing to do with the actual time spent in every state and so we have immediately 
+$$
+X_t \textrm { with rates } \alpha(i,j) \textrm{ is } \begin{array}{l} \textrm{transient} \\ \textrm{recurrent}\end{array} \iff 
+Y_n \textrm{ with transition } Q(i,j)=\frac{\alpha(i,j)}{\alpha(i)}
+\textrm{ is } \begin{array}{l} \textrm{transient} \\ \textrm{recurrent}\end{array} 
+$$
+
+
++ For positive recurrence we need to define the first return to a state $i$. This is most easily defined in terms of the return for the embeded Markov chain $Y_n$ and its first return  time $\tau(i)$.  The time until $X_0$ returns to $i$ will the sum of the time spent in each state.  If $S_n$ denotes the time of the jumps and $\tau(i)=n$ after visiting the state $j_0, j_1, \cdots j_{n-1}, j_n=i$ then the return time is 
+$$
+\sum_{k=0}^{n-1}(S_{k+1}- S_k) 
+$$ 
+where $S_{k+1}-S_k$ is exponential with paramter $\alpha(j_k)$.  The [first return time to state $i$]{.red} for the Markov chain $X_t$ is given 
+$$
+\Sigma(i) = \sum_{k=0}^{\tau(i)-1}(S_{k+1}- S_k) 
+$$
+
+
+
+## Stationary distribution for recurrent chains
+
+:::{#thm-stationarydistributioncontinuous}
+If the Markov chain with rates $\alpha(i,j)$ is irreducible and recurrent, then there exists a unique solution (up to a multiplicative constant) $\eta=(\eta(1), \eta(2), \cdots)$ to the equation $\eta A=0$ with 
+$$
+0 < \eta(i) < \infty \,.
+$$
+If it holds that $\sum_{i}\eta(i) < \infty$ then $\eta$ can be normalized to a stationary distribution and $X_t$ is positive recurrent. 
+:::
+
+:::{.proof}
+The equation $\eta A(k)=0$ can be written as
+$$
+\sum_{j \not= k} \eta(j) \alpha(j,k) = \alpha(k) \eta(k) \iff \sum_{j \not= k} \eta(j)\alpha(j) Q(j,k) = \eta(j)\alpha(j)
+$$
+That is the row vector $\mu$ with entries $\mu(k)=\alpha(k) \eta(k)$ must satisfy $\mu Q = \mu$. 
+
+If $X_t$ is recurrent then the embedded Markov chain $Y_n$ with transition $Q$ is recurrent and so by @thm-stationarydistribution there exists a solution to $\mu Q=\mu$ and therefore we found a solution for $\eta A=0$.  
+
+:::
+
+## {-}
+
+Moreover, from @thm-stationarydistribution we have a the representation
+$$
+\mu(j)=\alpha(j) \eta(j) = E\left[ \sum_{k=0}^{\tau(i)-1} {\bf 1}_{\{Y_k=j\}}\right]
+$$
+where $i$ is some fixed but arbitrary reference state (this counts the number of visits to the state $j$ between two consecutive visits to the reference state $i$)
+
+
+If we denote by $S_n$ the time of the $n^{th}$ jump for $X_t$ we have
+$$
+\begin{aligned}
+\eta(j) &= \sum_{k=0}^\infty E\left[  \frac{1}{\alpha(j)} {\bf 1}_{\{Y_k=j\}} {\bf 1}_{\{\tau(i) >k\}} \right] = \sum_{k=0}^\infty E\left[ (S_{k+1} -S_k) {\bf 1}_{\{Y_k=j\}} {\bf 1}_{\{\tau(i) >k\}} \right] 
+=  E\left[ \sum_{k=0}^{\tau(i)-1} (S_{k+1} -S_k) {\bf 1}_{\{Y_k=j\}} \right]
+\end{aligned}
+$$
+which is nothing but the time spent (by $X_t$) in the state $j$ between successive visits to $i$. 
+
+If $\sum_{j} \eta(j) <\infty$ then we have 
+$$
+E[\Sigma(j)]=E\left[ \sum_{k=0}^{\tau(i)-1} (S_{k+1} -S_k)\right] <\infty 
+$$
+which is the expected return time to state $i$.  That is the chain $X_t$ is positive recurrent. 
+
+
+## Ergodic theorem for positive recurrent Markov chains
+
+We have the following theorem which is the exact counterpart of the discrete time case (and is proved very similarly so we will omit the proof). 
+
+:::{#thm-ergodiccontinous} 
+Suppose $X_t$ is irreducible and positive recurrent. Then $X_t$ has a unique stationary distribution, and with probability $1$, the time spent in state $j$, converges to $\pi(j)$ 
+$$
+\lim_{t\to \infty}\int_0^t \mathbf{1}_{\{X_s=j\}} \, ds = \pi(j).
+$$
+Moreover we have Kac's formula: $\pi(j)$ is also equal to the average time between consecutive visits to state $j$: 
+$$
+\pi(j) = \frac{1}{E[\Sigma(j)|X_0=j]}.
+$$
+Conversely if $X_t$ has a stationary distribution then $X_t$ is positive recurrent. 
+:::
+
+
+## Birth and death process
+
++ A general [birth and death process]{.red} is a continuous time Markov chain with state space $\{0,1,2,\cdots\}$ 
+and whose only non-zero transition rates are 
+$$
+\begin{aligned}
+&\lambda(n) = \alpha(n,n+1)  & = \textrm{ birth rate for a population of size } n  & (\textrm{ for } n\ge 0) \\
+&\mu(n)=\alpha(n,n-1)        & =  \textrm{ death rate for a population of size } n & (\textrm{ for } n\ge 1)
+\end{aligned}
+$$
+
++ The Kolmogorov equations for the distribution of $X_t$ are, for $n\ge 1$ 
+$$
+\frac{d}{dt}p_t(n) = \underbrace{ \mu(n+1) p_t(n+1)}_{\textrm{ increase due do death} \atop \textrm{in a population of size } n+1} + 
+\underbrace{\lambda_{n-1} p_t(n-1)}_{\textrm{ increase due do birth} \atop \textrm{in a population of size } n-1} - \underbrace{(\lambda(n) + \mu(n))p_t(n)}_{\textrm{ decrease due do birth/death} \atop \textrm{in a population of size} n}. 
+$$
+For $n=0$, the eqation reads $\displaystyle \frac{d}{dt}p_t(0)= \mu(1) p_t(1) - \lambda(0) p_t(0)$. 
+
+
++ The generator has the form 
+$$
+\begin{matrix}
+0 \\ 1 \\ 2\\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+-\lambda(0) & \lambda(0) & 0 & 0 & \dots  \\
+\mu(1)   &-\lambda(1) -\mu(1) & \lambda(1) & 0 & \dots \\
+0 & \mu(2)   &-\lambda(2) -\mu(2) & \lambda(2) & \dots \\
+  \vdots       & \ddots & \ddots  & \ddots & \\
+\end{pmatrix}
+$$
+
+## {-}
+
++ The transition matrix for the embedded process $Y_n$ is 
+
+$$
+\begin{matrix}
+0 \\ 1 \\ 2\\ \vdots 
+\end{matrix}
+\begin{pmatrix}
+0  & 1 & 0 & 0 & \dots  \\
+\frac{\mu(1)}{\mu(1)+ \lambda(1)}   & 0 & \frac{\lambda(1)}{\mu(1)+ \lambda(1)} & 0 & \dots \\
+0 & \frac{\mu(2)}{\mu(2)+ \lambda(2)}   & 0 & \frac{\lambda(2)}{\mu(2)+ \lambda(2)} & \dots \\
+  \vdots       & \ddots & \ddots  & \ddots & \\
+\end{pmatrix}
+$$
+which is the transition matrix of a general random walk on the non-negative integers.
+
+
+## Examples 
+
++ *Poisson process*: There is no death and the birth rate is constant
+$$
+\mu(n)=0 \quad  \textrm{ and } \quad  \lambda(n)=\lambda
+$$
+
++  *Queueing models:*  Imagine a Poisson process (with rate $\lambda$) describing the arrival of customers.  In the systems there are $k$ service station at which 
+the service time is exponential with rate $\mu$.  If one service station is empty, upon arrival a customer immediately enter a service station and stay 
+in the system until being served. If all stations are currently busy serving other customers, the customer wait until one stay becomes free.  These models are called
+$M/M/k$ queues where $M$ statnds for Markovian and $k$ is the number of queues, the first $M$ describing the arrival process and the second $M$ the service time (which is exponential).  
+  + $M/M/1$ queue:  If there is only one service station 
+  $$ 
+  \lambda(n)=\lambda  \quad \textrm{ and  } \quad \mu(n) =\mu
+  $$
+  + $M/M/k$ queue: If there is $k$ service station then the rates are
+  $$
+  \lambda(n)=\lambda  \quad \textrm{ and } \quad  \mu(n) = \left\{ \begin{array}{cl} n \mu & n \le k \\ k \mu & n > k  \end{array}   \right. 
+  $$
+  + $M/M/\infty$ queue: If there is $k$ service station then the rates are
+  $$
+  \lambda(n)=\lambda  \quad \textrm{ and  } \quad \mu(n) =n\mu
+  $$
+
+## {-}
+
++ *Population models*:  If $X_t$ describes the size of a population birth rate will be naturally proportional to the size of the population if we assume that 
+all individuals give birth or die with a certina rate. 
+
+  + Pure birth model:  no death occur and so 
+  $$
+  \lambda(n)=n \lambda  \quad \textrm{ and  } \quad \mu(n) = 0
+  $$
+
+  + Population model:  the rates 
+  $$
+  \lambda(n)=n \lambda  \quad \textrm{ and  } \quad \mu(n) = n \mu
+  $$
+
+  + Population model with immigration: if immigrants arrive acccording to a Poisson process with  rate $\nu$ the rates are
+  $$
+  \lambda(n)=n \lambda +\nu \quad \textrm{ and  } \quad \mu(n) = n \mu
+  $$
+
+## Transience 
++ To study transience we use the embedded Markov chain and @thm-criteriontransience.  Choosing the reference state $0$ we look 
+for a solution $a(n)$ with $a(0)=1$ and $0 < a(n)< 1$ for $n\ge 1$ of the system of equations
+$$
+\lambda(n) a(n+1) + \nu(n) a(n-1) = (\lambda(n) + \mu(n)) a(n)
+$$
+This leads to 
+$$
+a(n+1) - a(n) = \frac{\mu(n)}{\lambda(n)} (a(n+1) - a(n)) = \cdots = \prod_{j=1}^n\frac{\mu(j)}{\lambda(j)} (a(1) - 1)
+$$
+
+
+and thus, by telescoping, 
+$$
+a(n+1)= 1 + \sum_{k=0}^{n} (a(k+1) -a(k)) = 1 + \left[1+ \sum_{k=1}^{n} \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)}\right] (a(1) - 1)
+$$
+Taking $n \to \infty$ we must have $a(n)\to 0$ and $\sum_{k=1}^\infty \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)} < \infty$ and we find the solution 
+$$
+a(n)=\frac{\sum_{k=n}^\infty \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)}}{1+ \sum_{k=1}^\infty \prod_{j=1}^k\frac{\mu(j)}{\lambda(j)}}
+$$
+
+## Recurrence
+
++ To study postive recurrence  we simply solve for the stationary distribution $\pi A=0$.  The first equation (for $n=0$) gives
+$$
+\mu(1) \pi(1) - \lambda(0)\pi(0) =0
+$${#eq-111}
+and 
+$$
+\lambda(n-1) \pi(n-1) + \mu(n+1) \pi(n+1) - (\mu(n)+ \lambda(n))\pi(n)=0 \textrm{ for } n\ge 1
+$$
+or  
+$$
+\mu(n+1)\pi(n+1)-\lambda(n) \pi(n)=\mu(n)\pi(n)-\lambda(n-1) \pi(n-1)
+$${#eq-112}
+Combining @eq-111 and @eq-112 gives 
+$$
+\pi(n) = \prod_{j=1}^n \frac{\lambda(j-1)}{\mu(j)} \pi(0)
+$$
+and thus we have a stationary distribution if and only if 
+$$
+\sum_{k=1}^\infty \prod_{j=1}^k \frac{\lambda(j-1)}{\mu(j)} <\infty\,.
+$$
+
+
+## {-}
+
++ The Poisson process are bure birth models are not irreducible and converge to $+\infty$ almost surely.
+
++  $M/M/1$-queue:  $\prod_{j=1}^n \frac{\mu(j)}{\lambda(j)}=\left(\frac{\lambda}{\mu}\right)^n$
+  
+    + Transient if $\mu < \lambda$.
+  
+    +  Recurrent if $\mu =\lambda$ 
+  
+    + Positive recurrent if $\lambda < \mu$ and with (geometric) stationary distribution:  $\pi(n)= \frac{\left(\frac{\lambda}{\mu}\right)^n}{1 -\frac{\lambda}{\mu} }$   
+
+
++  $M/M/k$-queue:
+$\prod_{j=1}^n \frac{\mu(j)}{\lambda(j)} = \left\{
+\begin{array}{cl}  
+n! \left( \frac{\mu}{\lambda} \right)^n  & n < k \\ 
+\frac{k!}{k^k}  \left(\frac{k\mu}{\lambda}\right)^n  &  n \ge k  
+\end{array}     
+\right. .$
+
+    + Transient if $k \mu < \lambda$.
+  
+    + Recurrent if $k \mu =\lambda$ 
+  
+    + Positive recurrent if $\lambda < k \mu$, the stationary $\pi$ is a bit messy to write.    
+
+
++  $M/M/\infty$-queue: $\prod_{j=1}^n \frac{\mu(j)}{\lambda(j)}= n! \left( \frac{\mu}{\lambda} \right)^n$. 
+
+    + Always positive recurrent with Poisson stationary distribution $\pi(n) = e^{- \frac{\lambda}{\mu}}  \frac{ \left(\frac{\lambda}{\mu}\right)^n}{n!}$
+
